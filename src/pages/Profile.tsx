@@ -52,7 +52,6 @@ export default function Profile() {
   const profile = useProfile()
   const { users } = useStore()
   const otherAdmins = users.filter(u => u.role === 'admin' && u.id !== 1)
-  const otherAdmins = users.filter(u => u.role === 'admin' && u.id !== 1)
   const [editMode, setEditMode]   = useState(false)
   const [editForm, setEditForm]   = useState(profile)
   const [saveAlert, setSaveAlert] = useState('')
