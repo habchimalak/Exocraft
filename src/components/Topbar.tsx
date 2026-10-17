@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEtab } from '../store/etablissementContext'
-import { useProfile } from '../store/profileStore'
+import { useAuth } from '../store/authContext'
 
 const pageNames: Record<string, string> = {
   dashboard:    'Tableau de bord',
@@ -19,7 +19,7 @@ interface TopbarProps {
 
 export default function Topbar({ activePage, onNavigate }: TopbarProps) {
   const { badge, type } = useEtab()
-  const profile = useProfile()
+  const { user } = useAuth()
 
   return (
     <div className="topbar">

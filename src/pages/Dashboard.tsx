@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { useStore, timeAgo, formatDateTime } from '../store/appStore'
-import { useProfile } from '../store/profileStore'
-import { mockStats } from '../data/mockData'
+import React, { useState, useEffect, useCallback } from 'react'
+import { statsApi, type StatsResponse, type AIGeneration } from '../api/client'
+import { timeAgo, formatDateTime } from '../store/appStore'
+import { useAuth } from '../store/authContext'
 
 function useClock() {
   const [now, setNow] = useState(new Date())
@@ -17,40 +17,56 @@ const TYPE_COLORS: Record<string, string> = {
   Exercices: '#f39c12', 'Résumé': '#4a90e2',
 }
 
-// Nom admin connecté — depuis le store du profil
-const ADMIN_NAME = 'Administrateur'
-
 export default function Dashboard() {
-  const { users, matieres, aiGenerations, totalGenerations } = useStore()
-  const profile = useProfile()
+  const { user } = useAuth()
   const now = useClock()
+  const [stats, setStats] = useState<StatsResponse | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const enseignants = users.filter(u => u.role === 'enseignant')
-  const totalDocs = matieres.reduce((acc, m) => acc + m.documents.length, 0)
+  const loadStats = useCallback(async () => {
+    try {
+      const data = await statsApi.get()
+      setStats(data)
+    } catch (err) {
+      console.error('Dashboard stats error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-  const countByType = mockStats.contentsByType.map(item => ({
-    ...item,
-    count: aiGenerations.filter(g => g.type === item.type).length,
-  }))
+  useEffect(() => {
+    loadStats()
+    // Rafraîchir toutes les 30 secondes
+    const t = setInterval(loadStats, 30000)
+    return () => clearInterval(t)
+  }, [loadStats])
 
-  type ActivityItem = { label: string; sub: string; isoTime: string; color: string }
-  const recentUsers: ActivityItem[] = users.slice(0, 3).map(u => ({
-    label: `${u.prenom} ${u.nom} a rejoint la plateforme`,
-    sub: u.email, isoTime: u.created_at, color: '#5b4fcf',
-  }))
-  const recentGen: ActivityItem[] = aiGenerations.slice(0, 5).map(g => ({
-    label: `${g.enseignant} a généré un ${g.type}`,
-    sub: g.sujet, isoTime: g.generatedAt,
-    color: TYPE_COLORS[g.type] ?? '#4a90e2',
-  }))
-  const activity = [...recentUsers, ...recentGen]
-    .sort((a, b) => new Date(b.isoTime).getTime() - new Date(a.isoTime).getTime())
-    .slice(0, 8)
+  const totalGenerations = stats?.totalGenerations ?? 0
+  const aiGenerations: AIGeneration[] = stats?.recentActivity ?? []
+
+  const countByType = (stats?.contentsByType ?? [
+    { type: 'Quiz', count: 0, color: '#5b4fcf' },
+    { type: 'Examen', count: 0, color: '#e17055' },
+    { type: 'Cours', count: 0, color: '#00b894' },
+    { type: 'Exercices', count: 0, color: '#f39c12' },
+    { type: 'Résumé', count: 0, color: '#4a90e2' },
+  ])
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+        <div style={{ textAlign: 'center', color: '#8888aa' }}>
+          <div style={{ width: 40, height: 40, border: '3px solid #e0e2f0', borderTopColor: '#6c5ce7', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          Chargement du tableau de bord...
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
 
   return (
     <div>
-
-      {/* ── Bannière de bienvenue ── */}
+      {/* ── Bannière ── */}
       <div style={{
         background: 'linear-gradient(135deg, #2d2a7a 0%, #3d3ab0 40%, #4a90e2 100%)',
         borderRadius: 16, padding: '28px 32px', marginBottom: 24,
@@ -58,23 +74,19 @@ export default function Dashboard() {
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(91,79,207,0.25)',
       }}>
-        {/* Cercles déco en arrière-plan */}
         <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', top: -100, right: 100, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', bottom: -80, right: -40, pointerEvents: 'none' }} />
-
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
             Tableau de bord · Administration
           </div>
           <div style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', marginBottom: 8, letterSpacing: -0.5 }}>
-            Bonjour, {profile.prenom} {profile.nom} 👋
+            Bonjour, {user?.prenom} {user?.nom} 👋
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
             Supervisez la plateforme ExoCraft en temps réel. Gérez les enseignants, les matières et les archives pédagogiques.
           </div>
         </div>
-
-        {/* Horloge */}
         <div style={{ position: 'relative', zIndex: 1, textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: -1 }}>
             {now.toLocaleTimeString('fr-FR')}
@@ -88,10 +100,10 @@ export default function Dashboard() {
       {/* ── Stats cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
         {[
-          { label: 'Enseignants actifs', value: enseignants.filter(u => u.status === 'actif').length, total: enseignants.length, color: '#5b4fcf', bg: '#edeaff', tag: 'ENS', sub: enseignants.length > 0 ? `Dernier: ${timeAgo(enseignants[0].created_at)}` : '—' },
-          { label: 'Générations IA',     value: totalGenerations, total: null,              color: '#4a90e2', bg: '#e6f0ff', tag: 'IA',  sub: totalGenerations > 0 ? `Dernière: ${timeAgo(aiGenerations[0].generatedAt)}` : 'En attente...' },
-          { label: 'Documents archivés', value: totalDocs,        total: null,              color: '#00b894', bg: '#e0faf3', tag: 'DOC', sub: `${matieres.length} matières` },
-          { label: 'Utilisateurs total', value: users.length,     total: null,              color: '#f39c12', bg: '#fff5e0', tag: 'USR', sub: `${users.filter(u => u.status === 'inactif').length} inactif(s)` },
+          { label: 'Enseignants actifs', value: stats?.activeEnseignants ?? 0, total: stats?.totalEnseignants ?? 0, color: '#5b4fcf', bg: '#edeaff', tag: 'ENS', sub: `${stats?.totalEnseignants ?? 0} total` },
+          { label: 'Générations IA', value: totalGenerations, total: null, color: '#4a90e2', bg: '#e6f0ff', tag: 'IA', sub: `${stats?.thisMonthGenerations ?? 0} ce mois` },
+          { label: 'Documents archivés', value: stats?.totalDocs ?? 0, total: null, color: '#00b894', bg: '#e0faf3', tag: 'DOC', sub: `${stats?.totalMatieres ?? 0} matières` },
+          { label: 'Utilisateurs total', value: stats?.totalUsers ?? 0, total: null, color: '#f39c12', bg: '#fff5e0', tag: 'USR', sub: `${stats?.totalArchives ?? 0} archives` },
         ].map((s, i) => (
           <div key={i} style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20, boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
@@ -104,33 +116,24 @@ export default function Dashboard() {
             </div>
             <div style={{ fontSize: 30, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</div>
             <div style={{ fontSize: 13, color: '#8888aa', marginTop: 4 }}>{s.label}</div>
-            <div style={{ fontSize: 11, color: s.color, marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              {i === 1 && totalGenerations > 0 && (
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00b894', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
-              )}
-              {s.sub}
-            </div>
+            <div style={{ fontSize: 11, color: s.color, marginTop: 8 }}>{s.sub}</div>
           </div>
         ))}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
-
-        {/* ── Gauche ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Graphe IA */}
-          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20, boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
+          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e' }}>Générations IA par type</div>
               <span style={{ background: '#edeaff', color: '#5b4fcf', padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>{totalGenerations} total</span>
             </div>
-
             {totalGenerations === 0 ? (
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#edeaff', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#5b4fcf', fontSize: 13 }}>IA</div>
                 <div style={{ fontWeight: 700, color: '#1a1a3e', marginBottom: 6 }}>Aucune génération pour l'instant</div>
-                <div style={{ fontSize: 12, color: '#8888aa', maxWidth: 260, margin: '0 auto' }}>Le compteur se met à jour automatiquement dès qu'un enseignant utilise le générateur</div>
+                <div style={{ fontSize: 12, color: '#8888aa' }}>Le compteur se met à jour automatiquement</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, fontSize: 12, color: '#00b894', fontWeight: 600 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00b894', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
                   En écoute — mise à jour automatique
@@ -153,7 +156,7 @@ export default function Dashboard() {
           </div>
 
           {/* Tableau générations */}
-          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
+          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #e0e2f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e' }}>Historique des générations IA</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#00b894', fontWeight: 700 }}>
@@ -163,13 +166,13 @@ export default function Dashboard() {
             </div>
             {aiGenerations.length === 0 ? (
               <div style={{ padding: '32px 20px', textAlign: 'center', color: '#8888aa', fontSize: 13 }}>
-                Aucune génération enregistrée — le tableau se remplira automatiquement
+                Aucune génération enregistrée
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
-                    {['Enseignant','Sujet généré','Type','Date & heure'].map(h => (
+                    {['Enseignant', 'Sujet généré', 'Type', 'Date & heure'].map(h => (
                       <th key={h} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: '#8888aa', background: '#fafbff', borderBottom: '1px solid #e0e2f0', fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
@@ -182,7 +185,7 @@ export default function Dashboard() {
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.sujet}</div>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: TYPE_COLORS[g.type] + '18', color: TYPE_COLORS[g.type] }}>{g.type}</span>
+                        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: (TYPE_COLORS[g.type] ?? '#4a90e2') + '18', color: TYPE_COLORS[g.type] ?? '#4a90e2' }}>{g.type}</span>
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: 11, color: '#8888aa', fontVariantNumeric: 'tabular-nums' }}>
                         <div>{formatDateTime(g.generatedAt)}</div>
@@ -196,62 +199,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Droite ── */}
+        {/* Droite */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-          {/* Activité live */}
-          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20, boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e' }}>Activité en direct</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#00b894', fontWeight: 700 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00b894', display: 'inline-block', animation: 'blink 1.5s infinite' }} />
-                Live
-              </div>
-            </div>
-            {activity.length === 0 ? (
-              <div style={{ fontSize: 13, color: '#8888aa', padding: '16px 0', textAlign: 'center' }}>Aucune activité récente</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {activity.map((act, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: act.color, flexShrink: 0, marginTop: 4 }} />
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <div style={{ fontSize: 12, color: '#1a1a3e', fontWeight: 500, lineHeight: 1.4 }}>{act.label}</div>
-                      <div style={{ fontSize: 11, color: '#8888aa', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{act.sub}</div>
-                      <div style={{ fontSize: 10, color: '#b0b0cc', marginTop: 3 }}>{timeAgo(act.isoTime)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Derniers inscrits */}
-          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20, boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e', marginBottom: 14 }}>Derniers inscrits</div>
-            {users.slice(0, 5).map((u, i) => (
-              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <div className="avatar" style={{ background: ['#5b4fcf','#4a90e2','#00b894','#f39c12','#e17055'][i % 5], width: 30, height: 30, fontSize: 10, flexShrink: 0 }}>
-                  {u.prenom[0]}{u.nom[0]}
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a3e' }}>{u.prenom} {u.nom}</div>
-                  <div style={{ fontSize: 10, color: '#8888aa', marginTop: 1 }}>{timeAgo(u.created_at)}</div>
-                </div>
-                <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: u.role === 'admin' ? '#edeaff' : '#e6f0ff', color: u.role === 'admin' ? '#5b4fcf' : '#4a90e2' }}>
-                  {u.role === 'admin' ? 'Admin' : 'Ens.'}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Répartition */}
-          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20, boxShadow: '0 2px 8px rgba(91,79,207,0.06)' }}>
+          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e', marginBottom: 14 }}>Répartition</div>
             {[
-              { label: 'Enseignants actifs',   count: users.filter(u => u.role === 'enseignant' && u.status === 'actif').length,   color: '#5b4fcf' },
-              { label: 'Enseignants inactifs', count: users.filter(u => u.role === 'enseignant' && u.status === 'inactif').length, color: '#e17055' },
-              { label: 'Administrateurs',      count: users.filter(u => u.role === 'admin').length,                                color: '#f39c12' },
+              { label: 'Enseignants actifs', count: stats?.activeEnseignants ?? 0, color: '#5b4fcf' },
+              { label: 'Total enseignants', count: stats?.totalEnseignants ?? 0, color: '#4a90e2' },
+              { label: 'Total utilisateurs', count: stats?.totalUsers ?? 0, color: '#f39c12' },
             ].map((item, i) => (
               <div key={i} style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#3a3a6a', marginBottom: 5 }}>
@@ -259,16 +214,37 @@ export default function Dashboard() {
                   <span style={{ fontWeight: 700, color: item.color }}>{item.count}</span>
                 </div>
                 <div style={{ height: 6, background: '#f0f2ff', borderRadius: 3, overflow: 'hidden' }}>
-                  <div style={{ width: `${users.length > 0 ? (item.count / users.length) * 100 : 0}%`, height: '100%', background: item.color, borderRadius: 3, transition: 'width 0.5s ease' }} />
+                  <div style={{ width: `${(stats?.totalUsers ?? 0) > 0 ? (item.count / (stats?.totalUsers ?? 1)) * 100 : 0}%`, height: '100%', background: item.color, borderRadius: 3, transition: 'width 0.5s ease' }} />
                 </div>
               </div>
             ))}
+          </div>
+
+          <div style={{ background: '#fff', border: '1px solid #e0e2f0', borderRadius: 14, padding: 20 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a3e', marginBottom: 14 }}>Activité IA récente</div>
+            {aiGenerations.length === 0 ? (
+              <div style={{ fontSize: 13, color: '#8888aa', padding: '16px 0', textAlign: 'center' }}>Aucune activité récente</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {aiGenerations.slice(0, 6).map((g, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[g.type] ?? '#4a90e2', flexShrink: 0, marginTop: 4 }} />
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <div style={{ fontSize: 12, color: '#1a1a3e', fontWeight: 500, lineHeight: 1.4 }}>{g.enseignant} — {g.type}</div>
+                      <div style={{ fontSize: 11, color: '#8888aa', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.sujet}</div>
+                      <div style={{ fontSize: 10, color: '#b0b0cc', marginTop: 3 }}>{timeAgo(g.generatedAt)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   )

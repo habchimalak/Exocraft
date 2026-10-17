@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import type { EtablissementType } from '../data/etablissements'
+import { useAuth } from '../store/authContext'
 
 interface LoginProps {
   onLogin: (type: EtablissementType) => void
 }
 
 export default function Login({ onLogin }: LoginProps) {
+  const { login } = useAuth()
   const [email, setEmail]               = useState('')
   const [password, setPassword]         = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -16,15 +18,21 @@ export default function Login({ onLogin }: LoginProps) {
 
   useEffect(() => { setMounted(true) }, [])
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (!etablissement) { setError('Veuillez sélectionner votre type d\'établissement.'); return }
     if (!email.trim())  { setError('Adresse email requise.'); return }
     if (!password)      { setError('Mot de passe requis.'); return }
-    if (password.length < 4) { setError('Mot de passe incorrect.'); return }
     setLoading(true)
-    setTimeout(() => { setLoading(false); onLogin(etablissement as EtablissementType) }, 1200)
+    try {
+      await login(email, password, etablissement as EtablissementType)
+      onLogin(etablissement as EtablissementType)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Connexion échouée')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -297,9 +305,11 @@ export default function Login({ onLogin }: LoginProps) {
           }}>
             <span style={{ color: 'rgba(162,155,254,0.8)', fontWeight: 600 }}>Accès démo</span>
             <br />
-            Email : <code style={{ color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 4 }}>admin@tekup.tn</code>
+            ING : <code style={{ color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 4 }}>admin@tekup.tn</code>
             &nbsp;·&nbsp;
-            Mot de passe : <code style={{ color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 4 }}>admin</code>
+            FAC : <code style={{ color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 4 }}>admin@faculte.tn</code>
+            <br />
+            Mot de passe : <code style={{ color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 4 }}>Admin@1234</code>
           </div>
         </div>
 

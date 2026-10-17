@@ -2,9 +2,8 @@ import { useState } from 'react'
 import './index.css'
 import './App.css'
 
+import { AuthProvider, useAuth } from './store/authContext'
 import { EtabProvider } from './store/etablissementContext'
-import { StoreProvider } from './store/appStore'
-import { ProfileProvider } from './store/profileStore'
 import type { EtablissementType } from './data/etablissements'
 
 import Login from './pages/Login'
@@ -20,13 +19,7 @@ import Profile from './pages/Profile'
 
 type Page = 'dashboard' | 'users' | 'matieres' | 'promos' | 'associations' | 'archives' | 'profile'
 
-function AdminApp({
-  etabType,
-  onLogout,
-}: {
-  etabType: EtablissementType
-  onLogout: () => void
-}) {
+function AdminApp({ etabType, onLogout }: { etabType: EtablissementType; onLogout: () => void }) {
   const [activePage, setActivePage] = useState<Page>('dashboard')
 
   function renderPage() {
@@ -43,45 +36,68 @@ function AdminApp({
   }
 
   return (
-    // ── Isolation complète par type d'établissement ──
-    // EtabProvider  → fournit promos/matières selon le type
-    // StoreProvider → isole users/générations/documents par espace
     <EtabProvider type={etabType}>
-      <StoreProvider etabType={etabType}>
-        <ProfileProvider type={etabType}>
-          <div className="app-layout">
-            <Sidebar
-              activePage={activePage}
-              onNavigate={(p) => setActivePage(p as Page)}
-              onLogout={onLogout}
-            />
-            <div className="main-content">
-              <Topbar activePage={activePage} onNavigate={(p) => setActivePage(p as Page)} />
-              <div className="page-content">
-                {renderPage()}
-              </div>
-            </div>
+      <div className="app-layout">
+        <Sidebar
+          activePage={activePage}
+          onNavigate={(p) => setActivePage(p as Page)}
+          onLogout={onLogout}
+        />
+        <div className="main-content">
+          <Topbar activePage={activePage} onNavigate={(p) => setActivePage(p as Page)} />
+          <div className="page-content">
+            {renderPage()}
           </div>
-        </ProfileProvider>
-      </StoreProvider>
+        </div>
+      </div>
     </EtabProvider>
   )
 }
 
-export default function App() {
-  const [session, setSession] = useState<{
-    logged: boolean
-    type: EtablissementType | null
-  }>({ logged: false, type: null })
+function AppInner() {
+  const { user, isLoading, logout } = useAuth()
+  const [sessionType, setSessionType] = useState<EtablissementType | null>(null)
 
-  if (!session.logged || !session.type) {
-    return <Login onLogin={(type) => setSession({ logged: true, type })} />
+  // Restore session from stored user on load
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#0f0c29',
+      }}>
+        <div style={{
+          width: 40, height: 40, border: '3px solid rgba(108,92,231,0.3)',
+          borderTopColor: '#6c5ce7', borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  const effectiveType = sessionType ?? (user?.etablissementType as EtablissementType | null)
+
+  if (!user || !effectiveType) {
+    return (
+      <Login onLogin={(type) => setSessionType(type)} />
+    )
   }
 
   return (
     <AdminApp
-      etabType={session.type}
-      onLogout={() => setSession({ logged: false, type: null })}
+      etabType={effectiveType}
+      onLogout={async () => {
+        await logout()
+        setSessionType(null)
+      }}
     />
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   )
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useProfile } from '../store/profileStore'
+import { useAuth } from '../store/authContext'
 
 interface SidebarProps {
   activePage: string
@@ -18,7 +18,7 @@ const navItems = [
 ]
 
 export default function Sidebar({ activePage, onNavigate, onLogout }: SidebarProps) {
-  const profile = useProfile()
+  const { user } = useAuth()
   return (
     <aside className="sidebar">
       {/* Logo */}
@@ -94,14 +94,14 @@ export default function Sidebar({ activePage, onNavigate, onLogout }: SidebarPro
             onClick={() => onNavigate('profile')}
             style={{ background: 'linear-gradient(135deg,#5b4fcf,#4a90e2)', color: '#fff', width: 34, height: 34, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}
           >
-            {profile.prenom[0]}{profile.nom[0]}
+            {user?.prenom?.[0]}{user?.nom?.[0]}
           </div>
           <div style={{ overflow: 'hidden' }}>
             <div className="admin-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {profile.prenom} {profile.nom}
+              {user?.prenom} {user?.nom}
             </div>
             <div className="admin-role" style={{ fontSize: 11, color: '#8888aa' }}>
-              {profile.poste}
+              Administrateur
             </div>
           </div>
         </div>

@@ -1,75 +1,103 @@
-import React, { useState } from 'react'
-import { mockArchives } from '../data/mockData'
-import type { Archive } from '../data/mockData'
+import React, { useState, useEffect, useCallback } from 'react'
+import { archivesApi, type ApiArchive } from '../api/client'
 import { useEtab } from '../store/etablissementContext'
 
 export default function Archives() {
   const { matieres, promos } = useEtab()
-  const [archives, setArchives] = useState<Archive[]>(mockArchives)
-  const [search, setSearch] = useState('');
-  const [filterType, setFilterType] = useState('tous');
-  const [filterMatiere, setFilterMatiere] = useState('toutes');
-  const [showModal, setShowModal] = useState(false);
-  const [alert, setAlert] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [form, setForm] = useState({
-    titre: '', type: 'cours', matiere: '', promo: '', format: 'PDF',
-  });
+  const [archives, setArchives] = useState<ApiArchive[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [filterType, setFilterType] = useState('tous')
+  const [filterMatiere, setFilterMatiere] = useState('toutes')
+  const [showModal, setShowModal] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [alert, setAlert] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [fileName, setFileName] = useState('')
+  const [form, setForm] = useState({ titre: '', type: 'cours', matiere: '', promo: '', format: 'PDF' })
+
+  const loadArchives = useCallback(async () => {
+    try {
+      setLoading(true)
+      const data = await archivesApi.list()
+      setArchives(data)
+    } catch (err) {
+      console.error('Archives load error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { loadArchives() }, [loadArchives])
 
   const filtered = archives.filter(a => {
-    const matchSearch = a.titre.toLowerCase().includes(search.toLowerCase()) || a.matiere.toLowerCase().includes(search.toLowerCase());
-    const matchType = filterType === 'tous' || a.type === filterType;
-    const matchMatiere = filterMatiere === 'toutes' || a.matiere === filterMatiere;
-    return matchSearch && matchType && matchMatiere;
-  });
-
-  function handleSave() {
-    if (!form.titre || !form.matiere || !form.promo) {
-      setAlert('Veuillez remplir tous les champs.'); return;
-    }
-    const newArchive: Archive = {
-      id: Date.now(),
-      titre: form.titre,
-      type: form.type as 'cours' | 'examen',
-      fichier: `${form.titre.toLowerCase().replace(/\s+/g, '_')}.${form.format === 'PDF' ? 'pdf' : 'docx'}`,
-      format: form.format as 'PDF' | 'Word',
-      matiere: form.matiere,
-      promo: form.promo,
-      uploadedBy: 'Admin',
-      created_at: new Date().toISOString().split('T')[0],
-      size: fileName ? '~1.0 Mo' : '—',
-    };
-    setArchives(prev => [newArchive, ...prev]);
-    setShowModal(false);
-    setFileName('');
-    setForm({ titre: '', type: 'cours', matiere: '', promo: '', format: 'PDF' });
-    setAlert('');
-  }
-
-  function handleDelete(id: number) {
-    if (window.confirm('Supprimer cette archive ?')) setArchives(prev => prev.filter(a => a.id !== id));
-  }
+    const matchSearch = a.titre.toLowerCase().includes(search.toLowerCase()) || a.matiere.toLowerCase().includes(search.toLowerCase())
+    const matchType = filterType === 'tous' || a.type === filterType
+    const matchMatiere = filterMatiere === 'toutes' || a.matiere === filterMatiere
+    return matchSearch && matchType && matchMatiere
+  })
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-      if (!form.titre) setForm(prev => ({ ...prev, titre: file.name.replace(/\.[^.]+$/, '') }));
+    const f = e.target.files?.[0]
+    if (!f) return
+    setFile(f)
+    setFileName(f.name)
+    const ext = f.name.split('.').pop()?.toLowerCase()
+    setForm(prev => ({
+      ...prev,
+      format: ext === 'pdf' ? 'PDF' : 'Word',
+      titre: prev.titre || f.name.replace(/\.[^.]+$/, ''),
+    }))
+  }
+
+  async function handleSave() {
+    if (!form.titre || !form.matiere || !form.promo) { setAlert('Veuillez remplir tous les champs.'); return }
+    if (!file) { setAlert('Sélectionnez un fichier.'); return }
+    setSaving(true); setAlert('')
+    try {
+      const created = await archivesApi.upload(file, {
+        titre: form.titre, type: form.type, format: form.format,
+        matiere: form.matiere, promo: form.promo,
+      })
+      setArchives(prev => [created, ...prev])
+      setShowModal(false)
+      setFile(null); setFileName('')
+      setForm({ titre: '', type: 'cours', matiere: '', promo: '', format: 'PDF' })
+    } catch (err) {
+      setAlert(err instanceof Error ? err.message : 'Erreur upload')
+    } finally {
+      setSaving(false)
     }
+  }
+
+  async function handleDelete(id: number) {
+    if (!window.confirm('Supprimer cette archive ?')) return
+    try {
+      await archivesApi.delete(id)
+      setArchives(prev => prev.filter(a => a.id !== id))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur suppression')
+    }
+  }
+
+  function handleDownload(id: number) {
+    window.open(archivesApi.downloadUrl(id), '_blank')
   }
 
   const iconByType = (type: string, format: string) => {
-    if (format === 'Word') return { icon: '📝', bg: 'rgba(74,144,226,0.15)', color: '#4a90e2' };
-    if (type === 'examen') return { icon: '📋', bg: 'rgba(225,112,85,0.15)', color: '#e17055' };
-    return { icon: '📄', bg: 'rgba(0,184,148,0.15)', color: '#00b894' };
-  };
+    if (format === 'Word') return { icon: '📝', bg: 'rgba(74,144,226,0.15)', color: '#4a90e2' }
+    if (type === 'examen') return { icon: '📋', bg: 'rgba(225,112,85,0.15)', color: '#e17055' }
+    return { icon: '📄', bg: 'rgba(0,184,148,0.15)', color: '#00b894' }
+  }
 
   return (
     <div>
       <div className="page-header">
         <div>
           <div className="page-title">Archives pédagogiques</div>
-          <div className="page-subtitle">{archives.length} document{archives.length > 1 ? 's' : ''} archivé{archives.length > 1 ? 's' : ''}</div>
+          <div className="page-subtitle">
+            {loading ? 'Chargement...' : `${archives.length} document${archives.length > 1 ? 's' : ''} archivé${archives.length > 1 ? 's' : ''}`}
+          </div>
         </div>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Déposer une archive</button>
       </div>
@@ -91,7 +119,7 @@ export default function Archives() {
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Filtres */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <div className="search-bar" style={{ flex: 1, maxWidth: 300 }}>
           <span className="search-icon">🔍</span>
@@ -111,8 +139,9 @@ export default function Archives() {
         </span>
       </div>
 
-      {/* Archives grid */}
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 40, color: '#8888aa' }}>Chargement...</div>
+      ) : filtered.length === 0 ? (
         <div className="card">
           <div className="empty-state">
             <div className="empty-icon">🗄️</div>
@@ -123,35 +152,29 @@ export default function Archives() {
       ) : (
         <div className="archive-grid">
           {filtered.map(a => {
-            const style = iconByType(a.type, a.format);
+            const style = iconByType(a.type, a.format)
             return (
               <div key={a.id} className="archive-card">
-                <div className="archive-icon" style={{ background: style.bg, color: style.color }}>
-                  {style.icon}
-                </div>
+                <div className="archive-icon" style={{ background: style.bg, color: style.color }}>{style.icon}</div>
                 <div className="archive-info">
                   <div className="archive-title">{a.titre}</div>
                   <div className="archive-meta">
                     <span>📚 {a.matiere}</span>
                     <span>🎓 {a.promo}</span>
-                    <span>📅 {a.created_at}</span>
+                    <span>📅 {new Date(a.created_at).toLocaleDateString('fr-FR')}</span>
                     <span>💾 {a.size}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                    <span className={`badge ${a.type === 'cours' ? 'badge-green' : 'badge-red'}`}>
-                      {a.type === 'cours' ? '📄 Cours' : '📋 Examen'}
-                    </span>
-                    <span className={`badge ${a.format === 'PDF' ? 'badge-red' : 'badge-blue'}`}>
-                      {a.format}
-                    </span>
+                    <span className={`badge ${a.type === 'cours' ? 'badge-green' : 'badge-red'}`}>{a.type === 'cours' ? '📄 Cours' : '📋 Examen'}</span>
+                    <span className={`badge ${a.format === 'PDF' ? 'badge-red' : 'badge-blue'}`}>{a.format}</span>
                   </div>
                 </div>
                 <div className="archive-actions">
-                  <button className="btn-icon" title="Télécharger">⬇️</button>
+                  <button className="btn-icon" title="Télécharger" onClick={() => handleDownload(a.id)}>⬇️</button>
                   <button className="btn-icon" onClick={() => handleDelete(a.id)} style={{ color: 'var(--danger)' }} title="Supprimer">🗑️</button>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
@@ -166,7 +189,6 @@ export default function Archives() {
             </div>
             {alert && <div className="alert alert-error">⚠️ {alert}</div>}
 
-            {/* Upload zone */}
             <label className="upload-zone" style={{ display: 'block', marginBottom: 16, cursor: 'pointer' }}>
               <input type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }} onChange={handleFileChange} />
               {fileName ? (
@@ -181,16 +203,15 @@ export default function Archives() {
                 <>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
                   <div style={{ fontWeight: 500, marginBottom: 4 }}>Glisser un fichier ou cliquer</div>
-                  <div style={{ fontSize: 11 }}>PDF, Word (.docx) — max 10 Mo</div>
+                  <div style={{ fontSize: 11 }}>PDF, Word (.docx) — max 20 Mo</div>
                 </>
               )}
             </label>
 
             <div className="form-group">
-              <label className="form-label">Titre du document</label>
+              <label className="form-label">Titre</label>
               <input className="input" value={form.titre} onChange={e => setForm({ ...form, titre: e.target.value })} placeholder="Ex: Cours Cloud Computing 2024" />
             </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div className="form-group">
                 <label className="form-label">Type</label>
@@ -207,7 +228,6 @@ export default function Archives() {
                 </select>
               </div>
             </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div className="form-group">
                 <label className="form-label">Matière</label>
@@ -224,14 +244,15 @@ export default function Archives() {
                 </select>
               </div>
             </div>
-
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Annuler</button>
-              <button className="btn btn-primary" onClick={handleSave}>⬆️ Déposer</button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                {saving ? 'Upload en cours...' : '⬆️ Déposer'}
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -1,23 +1,47 @@
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { EtablissementType } from '../data/etablissements'
-import { PROMOS_LICENCE, MATIERES_LICENCE } from '../data/etablissements'
-import { mockPromos, mockMatieres } from '../data/mockData'
-import type { Promo, Matiere } from '../data/mockData'
+import { promosApi, matieresApi, type ApiPromo, type ApiMatiere } from '../api/client'
+
+// Shape compatible with existing pages (they use Promo/Matiere from mockData)
+export interface EtabPromo {
+  id: number
+  nom: string
+  code: string
+  niveau: string
+  type: string
+  specialite?: string | null
+  semestre: string
+  matieres: string[]
+  etablissementType: string
+}
+
+export interface EtabMatiere {
+  id: number
+  nom: string
+  enseignantsCount: number
+  promoIds: number[]
+  documents: {
+    id: number; titre: string; type: string; format: string
+    fileName: string; size: string; uploadedAt: string; promo: string
+  }[]
+}
 
 interface EtabContextValue {
   type: EtablissementType
   label: string
   badge: string
-  promos: Promo[]
-  matieres: Matiere[]
+  promos: EtabPromo[]
+  matieres: EtabMatiere[]
+  reload: () => void
 }
 
 const EtabContext = createContext<EtabContextValue>({
   type: 'cycle_ing',
   label: 'Cycle Ingénieur',
   badge: 'Cycle Ingénieur',
-  promos: mockPromos,
-  matieres: mockMatieres,
+  promos: [],
+  matieres: [],
+  reload: () => {},
 })
 
 export function EtabProvider({
@@ -27,24 +51,31 @@ export function EtabProvider({
   type: EtablissementType
   children: React.ReactNode
 }) {
-  const value: EtabContextValue =
-    type === 'licence'
-      ? {
-          type,
-          label: 'Faculté — Licence / Master',
-          badge: 'FAC · Licence/Master',
-          promos: PROMOS_LICENCE,
-          matieres: MATIERES_LICENCE,
-        }
-      : {
-          type,
-          label: 'École d\'ingénieurs — Cycle Ingénieur',
-          badge: 'Cycle Ingénieur',
-          promos: mockPromos,
-          matieres: mockMatieres,
-        }
+  const [promos, setPromos] = useState<ApiPromo[]>([])
+  const [matieres, setMatieres] = useState<ApiMatiere[]>([])
 
-  return <EtabContext.Provider value={value}>{children}</EtabContext.Provider>
+  async function fetchData() {
+    try {
+      const [p, m] = await Promise.all([promosApi.list(), matieresApi.list()])
+      setPromos(p)
+      setMatieres(m)
+    } catch (err) {
+      console.error('[EtabProvider] fetch error:', err)
+    }
+  }
+
+  useEffect(() => { fetchData() }, [type])
+
+  const label = type === 'licence'
+    ? 'Faculté — Licence / Master'
+    : "École d'ingénieurs — Cycle Ingénieur"
+  const badge = type === 'licence' ? 'FAC · Licence/Master' : 'Cycle Ingénieur'
+
+  return (
+    <EtabContext.Provider value={{ type, label, badge, promos, matieres, reload: fetchData }}>
+      {children}
+    </EtabContext.Provider>
+  )
 }
 
 export function useEtab() {
