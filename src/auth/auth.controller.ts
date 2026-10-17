@@ -1,10 +1,10 @@
 import { Controller, Post, Get, Patch, Body, UsePipes, ValidationPipe } from '@nestjs/common'
-import { AuthService } from './auth.service.js'
+import { AuthService, type RegisterDto } from './auth.service.js'
 import { Public } from './decorators/public.decorator.js'
 import { Roles } from './decorators/roles.decorator.js'
 import { CurrentUser } from './decorators/current-user.decorator.js'
 import { LoginDto } from './dto/login.dto.js'
-import { IsString, IsNotEmpty } from 'class-validator'
+import { IsString, IsNotEmpty, IsOptional, IsEmail } from 'class-validator'
 
 class ChangePasswordDto {
   @IsString() @IsNotEmpty() currentPassword!: string
@@ -20,6 +20,13 @@ export class AuthController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto.email, dto.motDePasse, dto.etablissementType)
+  }
+
+  // ── Inscription (compatible frontend enseignant Rami) ──
+  @Public()
+  @Post('register')
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto)
   }
 
   @Get('me')

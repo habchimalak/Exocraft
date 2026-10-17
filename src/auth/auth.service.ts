@@ -1,9 +1,22 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common'
+import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from '../prisma/prisma.service.js'
 import type { JwtPayload } from './strategies/jwt.strategy.js'
 import { validatePasswordStrength } from '../utils/password.js'
+
+// ── DTO Register (compatible avec le frontend enseignant de Rami) ──
+export interface RegisterDto {
+  nom?: string
+  prenom?: string
+  lastName?: string
+  firstName?: string
+  email: string
+  motDePasse?: string
+  password?: string
+  role?: string
+  associations?: Array<{ className: string; section: string }>
+}
 
 @Injectable()
 export class AuthService {
@@ -74,8 +87,7 @@ export class AuthService {
     }
   }
 
-  async changePassword(userId: number, currentPassword: string, newPassword: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {    const user = await this.prisma.user.findUnique({ where: { id: userId } })
     if (!user) throw new UnauthorizedException('Utilisateur introuvable')
 
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
@@ -98,5 +110,61 @@ export class AuthService {
     })
 
     return { message: 'Mot de passe mis à jour avec succès' }
+  }
+
+  // ── Inscription (compatibilité frontend enseignant de Rami) ──────────────
+  async register(dto: RegisterDto) {
+    const nom    = dto.nom    ?? dto.lastName  ?? ''
+    const prenom = dto.prenom ?? dto.firstName ?? ''
+    const motDePasse = dto.motDePasse ?? dto.password ?? ''
+    const email  = dto.email
+    const role   = dto.role ?? 'enseignant'
+
+    if (!nom || !prenom || !motDePasse) {
+      throw new BadRequestException('Nom, prénom et mot de passe sont obligatoires')
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      throw new ConflictException('Cet email est déjà utilisé')
+    }
+
+    // Pour l'inscription depuis le frontend enseignant, on prend le premier
+    // établissement disponible ou on utilise 'cycle_ing' par défaut
+    const etablissementType = (dto as any).etablissementType ?? 'cycle_ing'
+
+    const hashedPw = await bcrypt.hash(motDePasse, 10)
+    const newUser = await this.prisma.user.create({
+      data: {
+        nom, prenom, email, password: hashedPw,
+        role,
+        status: 'actif',
+        etablissementType,
+        profile: { create: {} },
+      },
+    })
+
+    const payload: JwtPayload = {
+      sub: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      etablissementType: newUser.etablissementType,
+    }
+
+    const token = await this.jwtService.signAsync(payload)
+
+    return {
+      access_token: token,
+      user: {
+        id:        newUser.id,
+        nom:       newUser.nom,
+        prenom:    newUser.prenom,
+        lastName:  newUser.nom,
+        firstName: newUser.prenom,
+        email:     newUser.email,
+        role:      newUser.role,
+        associations: (dto as any).associations ?? [],
+      },
+    }
   }
 }
