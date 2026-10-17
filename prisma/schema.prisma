@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Établissement type (multi-tenant discriminator) ──
+// Values: "licence" | "cycle_ing"
+
+model User {
+  id               Int              @id @default(autoincrement())
+  nom              String
+  prenom           String
+  email            String           @unique
+  password         String
+  role             String           @default("enseignant") // "enseignant" | "admin"
+  status           String           @default("actif")      // "actif" | "inactif"
+  etablissementType String                                  // "licence" | "cycle_ing"
+  contentsCount    Int              @default(0)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  profile          AdminProfile?
+  notes            AdminNote[]
+  generations      AIGeneration[]
+  matiereAssoc     UserMatiere[]
+  promoAssoc       UserPromo[]
+
+  @@index([etablissementType])
+  @@index([email])
+}
+
+model AdminProfile {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  telephone      String   @default("")
+  poste          String   @default("")
+  departement    String   @default("")
+  etablissement  String   @default("")
+  bio            String   @default("")
+  avatarPath     String?  // path to uploaded avatar file
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Promo {
+  id               Int      @id @default(autoincrement())
+  nom              String
+  code             String
+  niveau           String   // "1ere" | "2eme" | "3eme" | "4eme" | "5eme"
+  type             String   // "prepa" | "branche_commune" | "specialite" | "general" | "licence" | "master"
+  specialite       String?
+  semestre         String   // "S1" | "S2" | "S1-S2"
+  etablissementType String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  matierePromos    MatierePromo[]
+  promoMatieres    String         @default("[]") // JSON array of matiere names (for display compatibility)
+  userPromos       UserPromo[]
+
+  @@unique([code, etablissementType])
+  @@index([etablissementType])
+}
+
+model Matiere {
+  id               Int            @id @default(autoincrement())
+  nom              String
+  etablissementType String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  documents        Document[]
+  matierePromos    MatierePromo[]
+  userMatieres     UserMatiere[]
+
+  @@index([etablissementType])
+}
+
+// Many-to-many: Matiere ↔ Promo
+model MatierePromo {
+  matiereId Int
+  promoId   Int
+
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+  promo     Promo   @relation(fields: [promoId], references: [id], onDelete: Cascade)
+
+  @@id([matiereId, promoId])
+}
+
+model Document {
+  id         Int      @id @default(autoincrement())
+  matiereId  Int
+  titre      String
+  type       String   // "cours" | "examen" | "exercice" | "resume"
+  format     String   // "PDF" | "Word"
+  fileName   String
+  filePath   String   // path on disk
+  size       String
+  promo      String   // promo name (display label)
+  uploadedAt DateTime @default(now())
+
+  matiere    Matiere  @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  @@index([matiereId])
+}
+
+model Archive {
+  id               Int      @id @default(autoincrement())
+  titre            String
+  type             String   // "cours" | "examen"
+  format           String   // "PDF" | "Word"
+  fileName         String
+  filePath         String
+  size             String
+  matiere          String   // subject name (display)
+  promo            String   // promo name (display)
+  uploadedBy       String   // user display name
+  uploadedById     Int
+  etablissementType String
+  createdAt        DateTime @default(now())
+
+  @@index([etablissementType])
+}
+
+model AIGeneration {
+  id               Int      @id @default(autoincrement())
+  type             String   // "Quiz" | "Examen" | "Cours" | "Exercices" | "Résumé"
+  sujet            String
+  enseignantId     Int
+  status           String   @default("success") // "success" | "pending"
+  etablissementType String
+  generatedAt      DateTime @default(now())
+
+  enseignant       User     @relation(fields: [enseignantId], references: [id], onDelete: Cascade)
+
+  @@index([etablissementType])
+  @@index([enseignantId])
+}
+
+model AdminNote {
+  id               Int      @id @default(autoincrement())
+  authorId         Int
+  content          String
+  pinned           Boolean  @default(false)
+  tag              String   @default("info") // "info" | "urgent" | "todo" | "done"
+  etablissementType String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  author           User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([etablissementType])
+}
+
+// Many-to-many: User (enseignant) ↔ Matiere
+model UserMatiere {
+  userId    Int
+  matiereId Int
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  @@id([userId, matiereId])
+}
+
+// Many-to-many: User (enseignant) ↔ Promo
+model UserPromo {
+  userId  Int
+  promoId Int
+
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promo   Promo @relation(fields: [promoId], references: [id], onDelete: Cascade)
+
+  @@id([userId, promoId])
+}
