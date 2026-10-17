@@ -87,7 +87,7 @@ export const authApi = {
   login(email: string, password: string, etablissementType: string) {
     return request<{ token: string; user: AuthUser }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password, etablissementType }),
+      body: JSON.stringify({ email, motDePasse: password, etablissementType }),
     })
   },
 
