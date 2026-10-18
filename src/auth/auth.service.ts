@@ -25,23 +25,23 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(email: string, motDePasse: string, etablissementType: string) {
+  async login(email: string, motDePasse: string, etablissementType?: string) {
     const user = await this.prisma.user.findUnique({ where: { email } })
 
     if (!user) {
       throw new UnauthorizedException('Email ou mot de passe incorrect')
     }
 
-    if (user.etablissementType !== etablissementType) {
+    // Solution A : si établissementType fourni, vérifier la cohérence
+    // Si non fourni (login unifié), on accepte l'établissementType du compte
+    if (etablissementType && user.etablissementType !== etablissementType) {
       throw new UnauthorizedException("Cet utilisateur n'appartient pas à cet établissement")
     }
 
-    if (user.role !== 'admin') {
-      throw new UnauthorizedException('Accès refusé — seuls les administrateurs peuvent se connecter au panneau admin')
-    }
-
+    // Seuls les admins accèdent au panneau admin — mais les enseignants peuvent aussi se connecter
+    // via le login unifié (Solution A)
     if (user.status === 'inactif') {
-      throw new UnauthorizedException('Compte désactivé. Contactez un autre administrateur.')
+      throw new UnauthorizedException('Compte désactivé. Contactez un administrateur.')
     }
 
     const isPasswordValid = await bcrypt.compare(motDePasse, user.password)
@@ -60,15 +60,19 @@ export class AuthService {
 
     return {
       token,
+      access_token: token, // compatibilité frontend Rami
       user: {
         id: user.id,
         nom: user.nom,
         prenom: user.prenom,
+        lastName: user.nom,      // alias Rami
+        firstName: user.prenom,  // alias Rami
         email: user.email,
         role: user.role,
         status: user.status,
         etablissementType: user.etablissementType,
         createdAt: user.createdAt.toISOString(),
+        associations: [],
       },
     }
   }

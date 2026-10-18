@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsNotEmpty, IsIn } from 'class-validator'
+import { IsEmail, IsString, IsNotEmpty, IsIn, IsOptional } from 'class-validator'
 
 export class LoginDto {
   @IsEmail()
@@ -8,6 +8,8 @@ export class LoginDto {
   @IsNotEmpty()
   motDePasse!: string
 
+  // Optionnel — Solution A : le type d'établissement est lu depuis le compte
+  @IsOptional()
   @IsIn(['licence', 'cycle_ing'])
-  etablissementType!: string
+  etablissementType?: string
 }
