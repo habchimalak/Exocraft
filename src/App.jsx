@@ -27,9 +27,11 @@ import TeacherSettings   from './pages/teacher/Settings'
 // ── Pages admin (Malak) ──
 import AdminApp from './pages/admin/AdminApp'
 
-// ── CSS ──
-import './index.css'       // CSS admin
-import './teacher.css'     // CSS enseignant (Rami)
+// ── Teacher wrapper (charge le CSS enseignant uniquement) ──
+import TeacherLayout from './components/teacher/TeacherLayout'
+
+// ── CSS admin uniquement ──
+import './index.css'
 
 // ── Guards ────────────────────────────────────────────────────────────────
 
@@ -71,7 +73,7 @@ function AppRoutes() {
 
       {/* ── Auth publique ── */}
       <Route path="/login"    element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<TeacherLayout><Register /></TeacherLayout>} />
 
       {/* ── Admin panel (Malak) ── */}
       <Route path="/admin/*" element={
@@ -81,12 +83,12 @@ function AppRoutes() {
       } />
 
       {/* ── Espace enseignant (Rami) ── */}
-      <Route path="/dashboard" element={<TeacherRoute><TeacherDashboard /></TeacherRoute>} />
-      <Route path="/ai"        element={<TeacherRoute><AiGenerator /></TeacherRoute>} />
-      <Route path="/quiz"      element={<TeacherRoute><QuizManager /></TeacherRoute>} />
-      <Route path="/contents"  element={<TeacherRoute><ContentManager /></TeacherRoute>} />
-      <Route path="/archives"  element={<TeacherRoute><ArchivesAdmin /></TeacherRoute>} />
-      <Route path="/settings"  element={<TeacherRoute><TeacherSettings /></TeacherRoute>} />
+      <Route path="/dashboard" element={<TeacherRoute><TeacherLayout><TeacherDashboard /></TeacherLayout></TeacherRoute>} />
+      <Route path="/ai"        element={<TeacherRoute><TeacherLayout><AiGenerator /></TeacherLayout></TeacherRoute>} />
+      <Route path="/quiz"      element={<TeacherRoute><TeacherLayout><QuizManager /></TeacherLayout></TeacherRoute>} />
+      <Route path="/contents"  element={<TeacherRoute><TeacherLayout><ContentManager /></TeacherLayout></TeacherRoute>} />
+      <Route path="/archives"  element={<TeacherRoute><TeacherLayout><ArchivesAdmin /></TeacherLayout></TeacherRoute>} />
+      <Route path="/settings"  element={<TeacherRoute><TeacherLayout><TeacherSettings /></TeacherLayout></TeacherRoute>} />
 
       {/* ── Fallback ── */}
       <Route path="*" element={
