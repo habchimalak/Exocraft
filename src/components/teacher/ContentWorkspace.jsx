@@ -1,8 +1,8 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { defaultGroups } from "../context/AuthContext";
-import useContents from "../hooks/useContents";
-import { archiveContent, contentText, contentTypes, restoreContent, saveContent } from "../services/contentStore";
+import { defaultGroups } from "../../context/AuthContext";
+import useContents from "../../hooks/useContents";
+import { archiveContent, contentText, contentTypes, restoreContent, saveContent } from "../../services/contentStore";
 
 function displayDate(value) {
   if (!value) return "ΓÇö";
@@ -158,4 +158,5 @@ export default function ContentWorkspace({ archived = false, groups = [], select
     </>
   );
 }
+
 

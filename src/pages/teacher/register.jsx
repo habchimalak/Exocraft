@@ -5,8 +5,8 @@ import {
   SECTION_OPTIONS,
   buildAssociations,
   useAuth,
-} from "../context/AuthContext";
-import logo from "../assets/exocraft-logo.png";
+} from "../../context/AuthContext";
+import logo from "../../assets/exocraft-logo.svg";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -161,4 +161,6 @@ export default function Register() {
     </div>
   );
 }
+
+
 

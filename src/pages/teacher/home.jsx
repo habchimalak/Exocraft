@@ -1,5 +1,5 @@
 ﻿import { useNavigate } from "react-router-dom";
-import logo from "../assets/exocraft-logo.png";
+import logo from "../../assets/exocraft-logo.svg";
 
 function Home() {
   const navigate = useNavigate();
@@ -408,4 +408,6 @@ function Home() {
 }
 
 export default Home;
+
+
 

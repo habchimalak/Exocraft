@@ -1,7 +1,7 @@
 ﻿import { useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import logo from "../assets/exocraft-logo.png";
+import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/exocraft-logo.svg";
 
 function DashboardLayout({ children, activePage, groups = [], selectedGroup = null, onSelectGroup }) {
   const navigate = useNavigate();
@@ -122,4 +122,6 @@ function DashboardLayout({ children, activePage, groups = [], selectedGroup = nu
 }
 
 export default DashboardLayout;
+
+
 

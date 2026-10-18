@@ -1,8 +1,8 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import DashboardLayout from "../components/DashboardLayout";
-import { useAuth, defaultGroups } from "../context/AuthContext";
-import { aiApi, exportApi } from "../services/api";
+import DashboardLayout from "../../components/teacher/DashboardLayout";
+import { useAuth, defaultGroups } from "../../context/AuthContext";
+import { aiApi, exportApi } from "../../services/api";
 
 const CONTENT_TYPES = [
   { value: "quiz",   label: "Quiz",              icon: "Γÿæ" },
@@ -407,4 +407,5 @@ export default function AiGenerator() {
     </DashboardLayout>
   );
 }
+
 

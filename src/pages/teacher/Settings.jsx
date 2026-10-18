@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
-import DashboardLayout from "../components/DashboardLayout";
-import { useAuth } from "../context/AuthContext";
+import DashboardLayout from "../../components/teacher/DashboardLayout";
+import { useAuth } from "../../context/AuthContext";
 
 function Settings() {
   const { user, updateUser } = useAuth();
@@ -477,4 +477,5 @@ function Settings() {
 }
 
 export default Settings;
+
 

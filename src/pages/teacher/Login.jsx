@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import logo from "../assets/exocraft-logo.png";
+import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/exocraft-logo.svg";
 
 function Login() {
   const navigate = useNavigate();
@@ -115,4 +115,6 @@ function Login() {
 }
 
 export default Login;
+
+
 
