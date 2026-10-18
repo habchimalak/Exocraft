@@ -11,7 +11,7 @@ function Settings() {
     user?.email || "utilisateur@exocraft.com"
   );
 
-  const [language, setLanguage] = useState("Fran├ºais");
+  const [language, setLanguage] = useState("Franâ”œÂºais");
 
   const [notifications, setNotifications] =
     useState(true);
@@ -32,7 +32,7 @@ function Settings() {
 
   const handleDeleteAccount = () => {
     const confirmed = window.confirm(
-      "Voulez-vous vraiment supprimer votre compte ? Cette action est irr├⌐versible."
+      "Voulez-vous vraiment supprimer votre compte ? Cette action est irrâ”œâŒversible."
     );
 
     if (!confirmed) {
@@ -66,11 +66,11 @@ function Settings() {
           </span>
 
           <h1>
-            Param├¿tres
+            Paramâ”œÂ¿tres
           </h1>
 
           <p>
-            G├⌐rez votre profil et les pr├⌐f├⌐rences de
+            Gâ”œâŒrez votre profil et les prâ”œâŒfâ”œâŒrences de
             votre espace ExoCraft.
           </p>
 
@@ -95,7 +95,7 @@ function Settings() {
           <div className="settings-card-header">
 
             <div className="settings-card-icon purple">
-              Γùë
+              Î“Ã¹Ã«
             </div>
 
             <div>
@@ -105,7 +105,7 @@ function Settings() {
               </h2>
 
               <p>
-                G├⌐rez vos informations personnelles.
+                Gâ”œâŒrez vos informations personnelles.
               </p>
 
             </div>
@@ -170,16 +170,16 @@ function Settings() {
                 }
               >
 
-                <option value="Fran├ºais">
-                  Fran├ºais
+                <option value="Franâ”œÂºais">
+                  Franâ”œÂºais
                 </option>
 
                 <option value="English">
                   English
                 </option>
 
-                <option value="╪º┘ä╪╣╪▒╪¿┘è╪⌐">
-                  ╪º┘ä╪╣╪▒╪¿┘è╪⌐
+                <option value="â•ªÂºâ”˜Ã¤â•ªâ•£â•ªâ–’â•ªÂ¿â”˜Ã¨â•ªâŒ">
+                  â•ªÂºâ”˜Ã¤â•ªâ•£â•ªâ–’â•ªÂ¿â”˜Ã¨â•ªâŒ
                 </option>
 
               </select>
@@ -198,7 +198,7 @@ function Settings() {
 
               {saved && (
                 <span className="settings-saved">
-                  Γ£ô Modifications enregistr├⌐es
+                  Î“Â£Ã´ Modifications enregistrâ”œâŒes
                 </span>
               )}
 
@@ -210,7 +210,7 @@ function Settings() {
 
 
         {/* =====================================================
-            PR├ëF├ëRENCES
+            PRâ”œÃ«Fâ”œÃ«RENCES
         ===================================================== */}
 
         <section className="settings-card">
@@ -218,17 +218,17 @@ function Settings() {
           <div className="settings-card-header">
 
             <div className="settings-card-icon blue">
-              ΓÜÖ
+              Î“ÃœÃ–
             </div>
 
             <div>
 
               <h2>
-                Pr├⌐f├⌐rences
+                Prâ”œâŒfâ”œâŒrences
               </h2>
 
               <p>
-                Personnalisez votre exp├⌐rience ExoCraft.
+                Personnalisez votre expâ”œâŒrience ExoCraft.
               </p>
 
             </div>
@@ -269,7 +269,7 @@ function Settings() {
                 }
                 aria-label={
                   notifications
-                    ? "D├⌐sactiver les notifications"
+                    ? "Dâ”œâŒsactiver les notifications"
                     : "Activer les notifications"
                 }
               >
@@ -281,7 +281,7 @@ function Settings() {
             </div>
 
 
-            {/* G├ëN├ëRATION INTELLIGENTE */}
+            {/* Gâ”œÃ«Nâ”œÃ«RATION INTELLIGENTE */}
 
             <div className="settings-option">
 
@@ -292,13 +292,13 @@ function Settings() {
                 </strong>
 
                 <span>
-                  Vos contenus restent class├⌐s par classe et par section.
+                  Vos contenus restent classâ”œâŒs par classe et par section.
                 </span>
 
               </div>
 
               <span className="settings-status">
-                Activ├⌐
+                Activâ”œâŒ
               </span>
 
             </div>
@@ -316,13 +316,13 @@ function Settings() {
 
                 <span>
                   Conserver automatiquement vos contenus
-                  enregistr├⌐s.
+                  enregistrâ”œâŒs.
                 </span>
 
               </div>
 
               <span className="settings-status">
-                Activ├⌐
+                Activâ”œâŒ
               </span>
 
             </div>
@@ -333,7 +333,7 @@ function Settings() {
 
 
         {/* =====================================================
-            S├ëCURIT├ë
+            Sâ”œÃ«CURITâ”œÃ«
         ===================================================== */}
 
         <section className="settings-card">
@@ -341,17 +341,17 @@ function Settings() {
           <div className="settings-card-header">
 
             <div className="settings-card-icon green">
-              Γ£ô
+              Î“Â£Ã´
             </div>
 
             <div>
 
               <h2>
-                S├⌐curit├⌐
+                Sâ”œâŒcuritâ”œâŒ
               </h2>
 
               <p>
-                G├⌐rez la s├⌐curit├⌐ de votre compte.
+                Gâ”œâŒrez la sâ”œâŒcuritâ”œâŒ de votre compte.
               </p>
 
             </div>
@@ -373,7 +373,7 @@ function Settings() {
                 </strong>
 
                 <span>
-                  Derni├¿re modification : jamais
+                  Derniâ”œÂ¿re modification : jamais
                 </span>
 
               </div>
@@ -406,7 +406,7 @@ function Settings() {
               </div>
 
               <span className="session-active">
-                ΓùÅ Active
+                Î“Ã¹Ã… Active
               </span>
 
             </div>
@@ -452,8 +452,8 @@ function Settings() {
               </strong>
 
               <span>
-                Cette action supprimera d├⌐finitivement
-                votre compte et vos donn├⌐es.
+                Cette action supprimera dâ”œâŒfinitivement
+                votre compte et vos donnâ”œâŒes.
               </span>
 
             </div>
@@ -477,5 +477,3 @@ function Settings() {
 }
 
 export default Settings;
-
-

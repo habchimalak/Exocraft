@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   CLASS_OPTIONS,
@@ -33,18 +33,16 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     const needsSpecialization = classes.some((c) => CLASS_OPTIONS.indexOf(c) >= 3);
     if (
       Object.values(form).some((v) => !v.trim()) ||
       !classes.length ||
       (needsSpecialization && !sections.length)
     ) {
-      return setError("Veuillez renseigner tous les champs et choisir une section pour les classes de sp├⌐cialit├⌐.");
+      return setError("Veuillez renseigner tous les champs et choisir une section pour les classes de spécialité.");
     }
-    if (form.password.length < 6) return setError("Le mot de passe doit contenir au moins 6 caract├¿res.");
+    if (form.password.length < 6) return setError("Le mot de passe doit contenir au moins 6 caractères.");
     if (form.password !== form.confirmPassword) return setError("Les mots de passe ne correspondent pas.");
-
     setLoading(true);
     try {
       await register({
@@ -69,25 +67,21 @@ export default function Register() {
           <img src={logo} alt="ExoCraft" className="auth-logo" />
         </Link>
         <div className="auth-header-text">
-          <span>Vous avez d├⌐j├á un compte ?</span>
+          <span>Vous avez déjà un compte ?</span>
           <Link to="/login">Se connecter</Link>
         </div>
       </header>
-
       <main className="auth-main">
         <div className="auth-container register-container">
-
           <div className="auth-heading">
-            <span className="auth-eyebrow">CR├ëER VOTRE ESPACE ENSEIGNANT</span>
+            <span className="auth-eyebrow">CRÉER VOTRE ESPACE ENSEIGNANT</span>
             <h1>Rejoignez ExoCraft</h1>
-            <p>Choisissez les classes et sections que vous enseignez pour organiser vos contenus d├¿s le d├⌐part.</p>
+            <p>Choisissez les classes et sections que vous enseignez pour organiser vos contenus dès le départ.</p>
           </div>
-
           <form className="auth-form" onSubmit={handleSubmit}>
-
             <div className="registration-name-grid">
               <div className="form-group">
-                <label htmlFor="firstName">Pr├⌐nom</label>
+                <label htmlFor="firstName">Prénom</label>
                 <input id="firstName" name="firstName" value={form.firstName} onChange={update} autoComplete="given-name" required />
               </div>
               <div className="form-group">
@@ -95,25 +89,21 @@ export default function Register() {
                 <input id="lastName" name="lastName" value={form.lastName} onChange={update} autoComplete="family-name" required />
               </div>
             </div>
-
             <div className="form-group">
               <label htmlFor="email">Adresse email</label>
               <input type="email" id="email" name="email" value={form.email} placeholder="exemple@email.com" onChange={update} autoComplete="email" required />
             </div>
-
             <div className="form-group">
               <label htmlFor="password">Mot de passe</label>
               <input type="password" id="password" name="password" value={form.password} onChange={update} autoComplete="new-password" required />
-              <span className="auth-input-hint">Minimum 6 caract├¿res</span>
+              <span className="auth-input-hint">Minimum 6 caractères</span>
             </div>
-
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
               <input type="password" id="confirmPassword" name="confirmPassword" value={form.confirmPassword} onChange={update} autoComplete="new-password" required />
             </div>
-
             <fieldset className="registration-choice">
-              <legend>Classes enseign├⌐es</legend>
+              <legend>Classes enseignées</legend>
               <div className="registration-options">
                 {CLASS_OPTIONS.map((item) => (
                   <label key={item} className="choice-card">
@@ -123,9 +113,8 @@ export default function Register() {
                 ))}
               </div>
             </fieldset>
-
             <fieldset className="registration-choice">
-              <legend>Sections de sp├⌐cialit├⌐</legend>
+              <legend>Sections de spécialité</legend>
               <div className="registration-options">
                 {SECTION_OPTIONS.map((item) => (
                   <label key={item} className="choice-card">
@@ -134,33 +123,24 @@ export default function Register() {
                   </label>
                 ))}
               </div>
-              <small>Les 1├¿re, 2├¿me et 3├¿me sont en tronc commun. Les sections choisies s'appliquent aux 4├¿me et 5├¿me ing├⌐nieur.</small>
+              <small>Les 1ère, 2ème et 3ème sont en tronc commun. Les sections choisies s'appliquent aux 4ème et 5ème ingénieur.</small>
             </fieldset>
-
             {error && <div className="auth-error" role="alert">{error}</div>}
-
             <button type="submit" className="auth-button" disabled={loading}>
-              <span>{loading ? "Cr├⌐ation en cours..." : "Cr├⌐er mon compte"}</span>
-              {!loading && <span>ΓåÆ</span>}
+              <span>{loading ? "Création en cours..." : "Créer mon compte"}</span>
+              {!loading && <span>→</span>}
             </button>
-
           </form>
-
           <div className="auth-bottom">
-            <span>Vous avez d├⌐j├á un compte ?</span>
+            <span>Vous avez déjà un compte ?</span>
             <Link to="/login">Se connecter</Link>
           </div>
-
           <div className="auth-security">
-            <span>≡ƒöÆ</span>
-            <p>Vos informations de compte sont prot├⌐g├⌐es.</p>
+            <span>🔒</span>
+            <p>Vos informations de compte sont protégées.</p>
           </div>
-
         </div>
       </main>
     </div>
   );
 }
-
-
-

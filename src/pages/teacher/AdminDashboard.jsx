@@ -1,10 +1,10 @@
 ﻿import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import DashboardLayout from '../../components/teacher/DashboardLayout';
-import { useAuth } from '../../context/AuthContext';
-import { adminApi, matiereApi, promotionApi } from '../../services/api';
+import DashboardLayout from '../components/DashboardLayout';
+import { useAuth } from '../context/AuthContext';
+import { adminApi, matiereApi, promotionApi } from '../services/api';
 
-// ΓöÇΓöÇ Inline assign form ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Inline assign form Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 function AssignForm({ label, onSave, onClose }) {
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -28,7 +28,7 @@ function AssignForm({ label, onSave, onClose }) {
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={`${label} s├⌐par├⌐s par des virgules`}
+        placeholder={`${label} sâ”œâŒparâ”œâŒs par des virgules`}
       />
       <button type="submit" className="workspace-button" style={{ padding: '7px 12px', minHeight: 'auto', fontSize: 12 }} disabled={saving}>
         {saving ? '...' : 'Sauvegarder'}
@@ -40,7 +40,7 @@ function AssignForm({ label, onSave, onClose }) {
   );
 }
 
-// ΓöÇΓöÇ Inline CRUD row for matieres/promotions ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Inline CRUD row for matieres/promotions Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 function CrudRow({ item, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ nom: item.nom || '', description: item.description || '' });
@@ -123,7 +123,7 @@ function CrudRow({ item, onUpdate, onDelete }) {
   );
 }
 
-// ΓöÇΓöÇ Main page ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Main page Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 export default function AdminDashboard() {
   const { user } = useAuth();
 
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteMatiere = async (id) => {
-    if (!window.confirm('Supprimer cette mati├¿re ?')) return;
+    if (!window.confirm('Supprimer cette matiâ”œÂ¿re ?')) return;
     try {
       await matiereApi.remove(id);
       setMatieres((prev) => prev.filter((m) => m.id !== id));
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
         <div>
           <span className="dashboard-eyebrow">ADMINISTRATION</span>
           <h1>Tableau de bord admin</h1>
-          <p>G├⌐rez les utilisateurs, les mati├¿res et les promotions.</p>
+          <p>Gâ”œâŒrez les utilisateurs, les matiâ”œÂ¿res et les promotions.</p>
         </div>
       </div>
 
@@ -265,9 +265,9 @@ export default function AdminDashboard() {
               <thead>
                 <tr>
                   <th>Nom</th>
-                  <th>Pr├⌐nom</th>
+                  <th>Prâ”œâŒnom</th>
                   <th>Email</th>
-                  <th>R├┤le</th>
+                  <th>Râ”œâ”¤le</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
                             style={{ padding: '5px 10px', minHeight: 'auto', fontSize: 12 }}
                             onClick={() => toggleAssign(u.id, 'matieres')}
                           >
-                            Assigner mati├¿res
+                            Assigner matiâ”œÂ¿res
                           </button>
                           <button
                             className="workspace-button secondary"
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
 
                         {assignPanel[u.id] === 'matieres' && (
                           <AssignForm
-                            label="Mati├¿res"
+                            label="Matiâ”œÂ¿res"
                             onSave={(list) => adminApi.assignerMatieres(u.id, list)}
                             onClose={() => toggleAssign(u.id, 'matieres')}
                           />
@@ -328,15 +328,15 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* Mati├¿res section */}
+      {/* Matiâ”œÂ¿res section */}
       <div className="admin-section">
-        <h2>Mati├¿res</h2>
+        <h2>Matiâ”œÂ¿res</h2>
 
         {/* Create form */}
         <form onSubmit={handleCreateMatiere} style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
           <input
             type="text"
-            placeholder="Nom de la mati├¿re *"
+            placeholder="Nom de la matiâ”œÂ¿re *"
             value={newMatiere.nom}
             onChange={(e) => setNewMatiere((f) => ({ ...f, nom: e.target.value }))}
             required
@@ -350,7 +350,7 @@ export default function AdminDashboard() {
             style={{ border: '1px solid #dcd9e7', borderRadius: 8, padding: '9px 12px', font: 'inherit', fontSize: 13, minWidth: 200 }}
           />
           <button type="submit" className="workspace-button" style={{ padding: '9px 16px', minHeight: 'auto' }}>
-            Cr├⌐er
+            Crâ”œâŒer
           </button>
         </form>
 
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-        {matieres.length === 0 && !loading && <p style={{ color: '#69647b' }}>Aucune mati├¿re.</p>}
+        {matieres.length === 0 && !loading && <p style={{ color: '#69647b' }}>Aucune matiâ”œÂ¿re.</p>}
       </div>
 
       {/* Promotions section */}
@@ -407,7 +407,7 @@ export default function AdminDashboard() {
             style={{ border: '1px solid #dcd9e7', borderRadius: 8, padding: '9px 12px', font: 'inherit', fontSize: 13, minWidth: 200 }}
           />
           <button type="submit" className="workspace-button" style={{ padding: '9px 16px', minHeight: 'auto' }}>
-            Cr├⌐er
+            Crâ”œâŒer
           </button>
         </form>
 
@@ -444,5 +444,3 @@ export default function AdminDashboard() {
     </DashboardLayout>
   );
 }
-
-

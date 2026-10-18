@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { defaultGroups } from "../../context/AuthContext";
 import useContents from "../../hooks/useContents";
@@ -158,5 +158,3 @@ export default function ContentWorkspace({ archived = false, groups = [], select
     </>
   );
 }
-
-

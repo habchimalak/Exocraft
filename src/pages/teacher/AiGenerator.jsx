@@ -5,23 +5,23 @@ import { useAuth, defaultGroups } from "../../context/AuthContext";
 import { aiApi, exportApi } from "../../services/api";
 
 const CONTENT_TYPES = [
-  { value: "quiz",   label: "Quiz",              icon: "Γÿæ" },
-  { value: "cours",  label: "Cours",             icon: "≡ƒôÿ" },
-  { value: "resume", label: "R├⌐sum├⌐",            icon: "≡ƒôä" },
-  { value: "serie",  label: "S├⌐rie d'exercices", icon: "Γ£Ä" },
-  { value: "examen", label: "Examen",            icon: "≡ƒôï" },
+  { value: "quiz",   label: "Quiz",              icon: "Î“Ã¿Ã¦" },
+  { value: "cours",  label: "Cours",             icon: "â‰¡Æ’Ã´Ã¿" },
+  { value: "resume", label: "Râ”œâŒsumâ”œâŒ",            icon: "â‰¡Æ’Ã´Ã¤" },
+  { value: "serie",  label: "Sâ”œâŒrie d'exercices", icon: "Î“Â£Ã„" },
+  { value: "examen", label: "Examen",            icon: "â‰¡Æ’Ã´Ã¯" },
 ];
 
 const NIVEAUX = [
-  { value: "debutant",      label: "D├⌐butant" },
-  { value: "intermediaire", label: "Interm├⌐diaire" },
-  { value: "avance",        label: "Avanc├⌐" },
+  { value: "debutant",      label: "Dâ”œâŒbutant" },
+  { value: "intermediaire", label: "Intermâ”œâŒdiaire" },
+  { value: "avance",        label: "Avancâ”œâŒ" },
 ];
 
-// ΓöÇΓöÇ Chat IA ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Chat IA Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 function AiChat() {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Bonjour ! Je suis ExoCraft IA. Posez-moi une question ou demandez-moi de g├⌐n├⌐rer un contenu p├⌐dagogique." }
+    { role: "assistant", content: "Bonjour ! Je suis ExoCraft IA. Posez-moi une question ou demandez-moi de gâ”œâŒnâ”œâŒrer un contenu pâ”œâŒdagogique." }
   ]);
   const [input, setInput]     = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ function AiChat() {
       const data = await aiApi.chat(userMsg.content, historique);
       setMessages((prev) => [...prev, { role: "assistant", content: data.reponse }]);
     } catch (err) {
-      setMessages((prev) => [...prev, { role: "assistant", content: `Γ¥î Erreur : ${err.message}` }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: `Î“Â¥Ã® Erreur : ${err.message}` }]);
     } finally {
       setLoading(false);
     }
@@ -54,12 +54,12 @@ function AiChat() {
       <div className="ai-chat-heading">
         <span className="dashboard-eyebrow">ASSISTANT IA</span>
         <h2>Chat avec ExoCraft IA</h2>
-        <p>Posez des questions libres ou demandez de l'aide pour cr├⌐er du contenu.</p>
+        <p>Posez des questions libres ou demandez de l'aide pour crâ”œâŒer du contenu.</p>
       </div>
       <div className="ai-chat-messages">
         {messages.map((msg, i) => (
           <div key={i} className={`ai-message ai-message--${msg.role}`}>
-            <span className="ai-message-avatar">{msg.role === "assistant" ? "≡ƒñû" : "≡ƒæñ"}</span>
+            <span className="ai-message-avatar">{msg.role === "assistant" ? "â‰¡Æ’Ã±Ã»" : "â‰¡Æ’Ã¦Ã±"}</span>
             <div className="ai-message-bubble">
               <pre className="ai-message-text">{msg.content}</pre>
             </div>
@@ -67,9 +67,9 @@ function AiChat() {
         ))}
         {loading && (
           <div className="ai-message ai-message--assistant">
-            <span className="ai-message-avatar">≡ƒñû</span>
+            <span className="ai-message-avatar">â‰¡Æ’Ã±Ã»</span>
             <div className="ai-message-bubble ai-message-typing">
-              <span>ΓùÅ</span><span>ΓùÅ</span><span>ΓùÅ</span>
+              <span>Î“Ã¹Ã…</span><span>Î“Ã¹Ã…</span><span>Î“Ã¹Ã…</span>
             </div>
           </div>
         )}
@@ -77,32 +77,32 @@ function AiChat() {
       </div>
       <form className="ai-chat-form" onSubmit={send}>
         <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
-          placeholder="├ëcrivez votre message..." disabled={loading} autoFocus />
+          placeholder="â”œÃ«crivez votre message..." disabled={loading} autoFocus />
         <button type="submit" disabled={loading || !input.trim()}>
-          {loading ? "..." : "Envoyer ΓåÆ"}
+          {loading ? "..." : "Envoyer Î“Ã¥Ã†"}
         </button>
       </form>
     </section>
   );
 }
 
-// ΓöÇΓöÇ Panneau d'export ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Panneau d'export Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 function ExportPanel({ form, editedContent }) {
   const [exporting, setExporting] = useState(false);
   const [msg, setMsg]             = useState("");
 
   const doExport = async (format, avecCorrige) => {
     setExporting(true); setMsg("");
-    const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} ΓÇö ${form.theme}`;
+    const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
     try {
       if (format === "pdf") {
         await exportApi.directPdf({ titre, matiere: form.matiere, theme: form.theme, type: form.type, contenu: editedContent, avecCorrige });
       } else {
         await exportApi.directWord({ titre, matiere: form.matiere, theme: form.theme, type: form.type, contenu: editedContent, avecCorrige });
       }
-      setMsg(`Γ£ô ${format.toUpperCase()} ${avecCorrige ? "avec corrig├⌐" : "sans corrig├⌐"} t├⌐l├⌐charg├⌐.`);
+      setMsg(`Î“Â£Ã´ ${format.toUpperCase()} ${avecCorrige ? "avec corrigâ”œâŒ" : "sans corrigâ”œâŒ"} tâ”œâŒlâ”œâŒchargâ”œâŒ.`);
     } catch (err) {
-      setMsg(`Γ¥î ${err.message}`);
+      setMsg(`Î“Â¥Ã® ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -110,13 +110,13 @@ function ExportPanel({ form, editedContent }) {
 
   return (
     <div className="ai-export-panel">
-      <h3 className="ai-export-title">≡ƒôÑ T├⌐l├⌐charger le contenu</h3>
+      <h3 className="ai-export-title">â‰¡Æ’Ã´Ã‘ Tâ”œâŒlâ”œâŒcharger le contenu</h3>
 
-      {/* Pour les ├⌐tudiants ΓÇö sans corrig├⌐ */}
+      {/* Pour les â”œâŒtudiants Î“Ã‡Ã¶ sans corrigâ”œâŒ */}
       <div className="ai-export-group">
         <div className="ai-export-group-label">
-          <span className="ai-export-badge ai-export-badge--student">≡ƒæ¿ΓÇì≡ƒÄô Version ├⌐tudiants</span>
-          <small>Sans les r├⌐ponses correctes</small>
+          <span className="ai-export-badge ai-export-badge--student">â‰¡Æ’Ã¦Â¿Î“Ã‡Ã¬â‰¡Æ’Ã„Ã´ Version â”œâŒtudiants</span>
+          <small>Sans les râ”œâŒponses correctes</small>
         </div>
         <div className="ai-export-buttons">
           <button
@@ -124,23 +124,23 @@ function ExportPanel({ form, editedContent }) {
             onClick={() => doExport("pdf", false)}
             disabled={exporting}
           >
-            ≡ƒôä PDF
+            â‰¡Æ’Ã´Ã¤ PDF
           </button>
           <button
             className="ai-export-btn ai-export-btn--word"
             onClick={() => doExport("word", false)}
             disabled={exporting}
           >
-            ≡ƒô¥ Word
+            â‰¡Æ’Ã´Â¥ Word
           </button>
         </div>
       </div>
 
-      {/* Pour le professeur ΓÇö avec corrig├⌐ */}
+      {/* Pour le professeur Î“Ã‡Ã¶ avec corrigâ”œâŒ */}
       <div className="ai-export-group">
         <div className="ai-export-group-label">
-          <span className="ai-export-badge ai-export-badge--prof">≡ƒæ¿ΓÇì≡ƒÅ½ Version professeur</span>
-          <small>Avec les r├⌐ponses et explications</small>
+          <span className="ai-export-badge ai-export-badge--prof">â‰¡Æ’Ã¦Â¿Î“Ã‡Ã¬â‰¡Æ’Ã…Â½ Version professeur</span>
+          <small>Avec les râ”œâŒponses et explications</small>
         </div>
         <div className="ai-export-buttons">
           <button
@@ -148,25 +148,25 @@ function ExportPanel({ form, editedContent }) {
             onClick={() => doExport("pdf", true)}
             disabled={exporting}
           >
-            ≡ƒôä PDF + Corrig├⌐
+            â‰¡Æ’Ã´Ã¤ PDF + Corrigâ”œâŒ
           </button>
           <button
             className="ai-export-btn ai-export-btn--word"
             onClick={() => doExport("word", true)}
             disabled={exporting}
           >
-            ≡ƒô¥ Word + Corrig├⌐
+            â‰¡Æ’Ã´Â¥ Word + Corrigâ”œâŒ
           </button>
         </div>
       </div>
 
-      {exporting && <p className="ai-export-status">ΓÅ│ G├⌐n├⌐ration du fichier...</p>}
-      {msg && <p className={`ai-export-status${msg.startsWith("Γ¥î") ? " error" : ""}`}>{msg}</p>}
+      {exporting && <p className="ai-export-status">Î“Ã…â”‚ Gâ”œâŒnâ”œâŒration du fichier...</p>}
+      {msg && <p className={`ai-export-status${msg.startsWith("Î“Â¥Ã®") ? " error" : ""}`}>{msg}</p>}
     </div>
   );
 }
 
-// ΓöÇΓöÇ G├⌐n├⌐rateur ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Gâ”œâŒnâ”œâŒrateur Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 function AiGeneratorForm() {
   const [searchParams] = useSearchParams();
   const archiveId = searchParams.get('archiveId');
@@ -185,11 +185,11 @@ function AiGeneratorForm() {
 
   const update = (e) => setForm((cur) => ({ ...cur, [e.target.name]: e.target.value }));
 
-  // G├⌐n├⌐ration
+  // Gâ”œâŒnâ”œâŒration
   const handleGenerate = async (e) => {
     e.preventDefault();
     if (!form.matiere.trim() || !form.theme.trim()) {
-      setError("La mati├¿re et le th├¿me sont obligatoires."); return;
+      setError("La matiâ”œÂ¿re et le thâ”œÂ¿me sont obligatoires."); return;
     }
     setError(""); setSuccess(""); setGenerated(""); setEdited("");
     setLoading(true);
@@ -215,13 +215,13 @@ function AiGeneratorForm() {
     if (!editedContent.trim()) return;
     setSaving(true); setError(""); setSuccess("");
     try {
-      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} ΓÇö ${form.theme}`;
+      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
       await aiApi.save({ titre, type: form.type, matiere: form.matiere, theme: form.theme, contenu: editedContent });
       const isQuizType = ["quiz", "serie", "examen"].includes(form.type);
       setSuccess(
         isQuizType
-          ? "Γ£ô Sauvegard├⌐ en brouillon. Retrouvez-le dans \"Mes Exercices\"."
-          : "Γ£ô Sauvegard├⌐ en brouillon. Retrouvez-le dans \"Mes Cours\"."
+          ? "Î“Â£Ã´ Sauvegardâ”œâŒ en brouillon. Retrouvez-le dans \"Mes Exercices\"."
+          : "Î“Â£Ã´ Sauvegardâ”œâŒ en brouillon. Retrouvez-le dans \"Mes Cours\"."
       );
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
@@ -232,13 +232,13 @@ function AiGeneratorForm() {
     if (!editedContent.trim()) return;
     setSaving(true); setError(""); setSuccess("");
     try {
-      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} ΓÇö ${form.theme}`;
+      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
       await aiApi.save({ titre, type: form.type, matiere: form.matiere, theme: form.theme, contenu: editedContent });
       const isQuizType = ["quiz", "serie", "examen"].includes(form.type);
       setSuccess(
         isQuizType
-          ? "Γ£ô Enregistr├⌐ dans \"Mes Exercices\" ! Vous pouvez y ajouter des questions."
-          : "Γ£ô Enregistr├⌐ dans \"Mes Cours\" ! Vous pouvez le valider depuis l├á-bas."
+          ? "Î“Â£Ã´ Enregistrâ”œâŒ dans \"Mes Exercices\" ! Vous pouvez y ajouter des questions."
+          : "Î“Â£Ã´ Enregistrâ”œâŒ dans \"Mes Cours\" ! Vous pouvez le valider depuis lâ”œÃ¡-bas."
       );
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
@@ -247,20 +247,20 @@ function AiGeneratorForm() {
   return (
     <section className="ai-generator-section">
       <div className="ai-generator-heading">
-        <span className="dashboard-eyebrow">G├ëN├ëRATION IA</span>
-        <h2>G├⌐n├⌐rer un contenu p├⌐dagogique</h2>
-        <p>Choisissez un type, saisissez une mati├¿re et un th├¿me. L'IA g├⌐n├¿re le contenu en quelques secondes.</p>
+        <span className="dashboard-eyebrow">Gâ”œÃ«Nâ”œÃ«RATION IA</span>
+        <h2>Gâ”œâŒnâ”œâŒrer un contenu pâ”œâŒdagogique</h2>
+        <p>Choisissez un type, saisissez une matiâ”œÂ¿re et un thâ”œÂ¿me. L'IA gâ”œâŒnâ”œÂ¿re le contenu en quelques secondes.</p>
       </div>
 
       {archiveId && (
         <div className="workspace-notice" role="status">
-          ≡ƒôÄ G├⌐n├⌐ration depuis l'archive #{archiveId} ΓÇö le contenu sera bas├⌐ sur ce document.
+          â‰¡Æ’Ã´Ã„ Gâ”œâŒnâ”œâŒration depuis l'archive #{archiveId} Î“Ã‡Ã¶ le contenu sera basâ”œâŒ sur ce document.
         </div>
       )}
 
       <form className="ai-generator-form" onSubmit={handleGenerate}>
 
-        {/* S├⌐lecteur de type */}
+        {/* Sâ”œâŒlecteur de type */}
         <div className="ai-type-selector">
           {CONTENT_TYPES.map((t) => (
             <label key={t.value} className={`ai-type-card${form.type === t.value ? " active" : ""}`}>
@@ -271,21 +271,21 @@ function AiGeneratorForm() {
           ))}
         </div>
 
-        {/* Mati├¿re + Th├¿me */}
+        {/* Matiâ”œÂ¿re + Thâ”œÂ¿me */}
         <div className="ai-form-grid">
           <div className="form-group">
-            <label htmlFor="matiere">Mati├¿re *</label>
+            <label htmlFor="matiere">Matiâ”œÂ¿re *</label>
             <input id="matiere" name="matiere" value={form.matiere} onChange={update}
-              placeholder="Ex: Informatique, Math├⌐matiques..." required />
+              placeholder="Ex: Informatique, Mathâ”œâŒmatiques..." required />
           </div>
           <div className="form-group">
-            <label htmlFor="theme">Th├¿me *</label>
+            <label htmlFor="theme">Thâ”œÂ¿me *</label>
             <input id="theme" name="theme" value={form.theme} onChange={update}
               placeholder="Ex: Les algorithmes de tri..." required />
           </div>
         </div>
 
-        {/* Param├¿tres quiz */}
+        {/* Paramâ”œÂ¿tres quiz */}
         {form.type === "quiz" && (
           <div className="ai-form-grid">
             <div className="form-group">
@@ -302,15 +302,15 @@ function AiGeneratorForm() {
           </div>
         )}
 
-        {/* Param├¿tres examen */}
+        {/* Paramâ”œÂ¿tres examen */}
         {form.type === "examen" && (
           <div className="ai-form-grid">
             <div className="form-group">
-              <label htmlFor="duree">Dur├⌐e</label>
+              <label htmlFor="duree">Durâ”œâŒe</label>
               <input id="duree" name="duree" value={form.duree} onChange={update} placeholder="Ex: 2 heures" />
             </div>
             <div className="form-group">
-              <label htmlFor="bareme">Bar├¿me</label>
+              <label htmlFor="bareme">Barâ”œÂ¿me</label>
               <input id="bareme" name="bareme" value={form.bareme} onChange={update} placeholder="Ex: 20 points" />
             </div>
           </div>
@@ -319,7 +319,7 @@ function AiGeneratorForm() {
         {/* Cours fourni */}
         <div className="form-group">
           <label htmlFor="courseFourni">
-            Cours existant <small>(optionnel ΓÇö si vide, l'IA g├⌐n├¿re depuis le th├¿me)</small>
+            Cours existant <small>(optionnel Î“Ã‡Ã¶ si vide, l'IA gâ”œâŒnâ”œÂ¿re depuis le thâ”œÂ¿me)</small>
           </label>
           <textarea id="courseFourni" name="courseFourni" value={form.courseFourni} onChange={update}
             rows={4} placeholder="Collez ici le contenu d'un cours existant pour que l'IA s'en inspire..." />
@@ -328,15 +328,15 @@ function AiGeneratorForm() {
         {error && <p className="workspace-error" role="alert">{error}</p>}
 
         <button type="submit" className="workspace-button ai-generate-btn" disabled={loading}>
-          {loading ? "ΓÅ│ G├⌐n├⌐ration en cours..." : "Γ£¿ G├⌐n├⌐rer avec l'IA"}
+          {loading ? "Î“Ã…â”‚ Gâ”œâŒnâ”œâŒration en cours..." : "Î“Â£Â¿ Gâ”œâŒnâ”œâŒrer avec l'IA"}
         </button>
       </form>
 
-      {/* ΓöÇΓöÇ Zone r├⌐sultat ΓöÇΓöÇ */}
+      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Zone râ”œâŒsultat Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
       {generated && (
         <div className="ai-result">
           <div className="ai-result-heading">
-            <h3>Contenu g├⌐n├⌐r├⌐ ΓÇö modifiez-le si besoin avant de t├⌐l├⌐charger ou sauvegarder</h3>
+            <h3>Contenu gâ”œâŒnâ”œâŒrâ”œâŒ Î“Ã‡Ã¶ modifiez-le si besoin avant de tâ”œâŒlâ”œâŒcharger ou sauvegarder</h3>
           </div>
 
           <textarea
@@ -346,19 +346,19 @@ function AiGeneratorForm() {
             rows={20}
           />
 
-          {/* ΓöÇΓöÇ Panneau d'export ΓöÇΓöÇ */}
+          {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Panneau d'export Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
           <ExportPanel form={form} editedContent={editedContent} />
 
-          {/* ΓöÇΓöÇ Sauvegarde backend ΓöÇΓöÇ */}
+          {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Sauvegarde backend Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
           <div className="ai-result-actions">
             <button className="workspace-button secondary" onClick={handleSave} disabled={saving}>
-              {saving ? "Sauvegarde..." : "≡ƒÆ╛ Sauvegarder en brouillon"}
+              {saving ? "Sauvegarde..." : "â‰¡Æ’Ã†â•› Sauvegarder en brouillon"}
             </button>
             <button className="workspace-button" onClick={handleValidate} disabled={saving}>
               {saving ? "Enregistrement..." : (
                 ["quiz", "serie", "examen"].includes(form.type)
-                  ? "Γ£ô Enregistrer dans Mes Quiz"
-                  : "Γ£ô Enregistrer dans Mes Contenus"
+                  ? "Î“Â£Ã´ Enregistrer dans Mes Quiz"
+                  : "Î“Â£Ã´ Enregistrer dans Mes Contenus"
               )}
             </button>
           </div>
@@ -367,8 +367,8 @@ function AiGeneratorForm() {
             <div className="workspace-notice" role="status">
               <p>{success}</p>
               {["quiz", "serie", "examen"].includes(form.type)
-                ? <a href="/quiz" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>ΓåÆ Aller ├á Mes Exercices</a>
-                : <a href="/contents" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>ΓåÆ Aller ├á Mes Cours</a>
+                ? <a href="/quiz" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>Î“Ã¥Ã† Aller â”œÃ¡ Mes Exercices</a>
+                : <a href="/contents" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>Î“Ã¥Ã† Aller â”œÃ¡ Mes Cours</a>
               }
             </div>
           )}
@@ -378,7 +378,7 @@ function AiGeneratorForm() {
   );
 }
 
-// ΓöÇΓöÇ Page principale ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// Î“Ã¶Ã‡Î“Ã¶Ã‡ Page principale Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
 export default function AiGenerator() {
   const { user } = useAuth();
   const groups = user?.associations?.length ? user.associations : defaultGroups();
@@ -390,16 +390,16 @@ export default function AiGenerator() {
         <div>
           <span className="dashboard-eyebrow">INTELLIGENCE ARTIFICIELLE</span>
           <h1>Assistant ExoCraft IA</h1>
-          <p>G├⌐n├⌐rez des cours, quiz, r├⌐sum├⌐s, s├⌐ries d'exercices et examens en quelques secondes.</p>
+          <p>Gâ”œâŒnâ”œâŒrez des cours, quiz, râ”œâŒsumâ”œâŒs, sâ”œâŒries d'exercices et examens en quelques secondes.</p>
         </div>
       </section>
 
       <div className="ai-tabs">
         <button className={`ai-tab${tab === "generate" ? " active" : ""}`} onClick={() => setTab("generate")}>
-          Γ£¿ G├⌐n├⌐rer un contenu
+          Î“Â£Â¿ Gâ”œâŒnâ”œâŒrer un contenu
         </button>
         <button className={`ai-tab${tab === "chat" ? " active" : ""}`} onClick={() => setTab("chat")}>
-          ≡ƒÆ¼ Chat avec l'IA
+          â‰¡Æ’Ã†Â¼ Chat avec l'IA
         </button>
       </div>
 
@@ -407,5 +407,3 @@ export default function AiGenerator() {
     </DashboardLayout>
   );
 }
-
-

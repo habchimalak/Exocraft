@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import DashboardLayout from "../../components/teacher/DashboardLayout";
 import ContentWorkspace from "../../components/teacher/ContentWorkspace";
 import { defaultGroups, useAuth } from "../../context/AuthContext";
@@ -12,5 +12,3 @@ export default function Dashboard() {
     <ContentWorkspace groups={groups} selectedGroup={safeGroup} />
   </DashboardLayout>;
 }
-
-
