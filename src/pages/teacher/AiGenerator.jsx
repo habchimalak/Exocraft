@@ -1,409 +1,302 @@
-﻿import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import DashboardLayout from "../../components/teacher/DashboardLayout";
-import { useAuth, defaultGroups } from "../../context/AuthContext";
-import { aiApi, exportApi } from "../../services/api";
+﻿import { useState, useRef, useEffect } from "react"
+import DashboardLayout from "../../components/teacher/DashboardLayout"
+import { useAuth } from "../../context/AuthContext"
+import { aiApi } from "../../services/api"
 
 const CONTENT_TYPES = [
-  { value: "quiz",   label: "Quiz",              icon: "Î“Ã¿Ã¦" },
-  { value: "cours",  label: "Cours",             icon: "â‰¡Æ’Ã´Ã¿" },
-  { value: "resume", label: "Râ”œâŒsumâ”œâŒ",            icon: "â‰¡Æ’Ã´Ã¤" },
-  { value: "serie",  label: "Sâ”œâŒrie d'exercices", icon: "Î“Â£Ã„" },
-  { value: "examen", label: "Examen",            icon: "â‰¡Æ’Ã´Ã¯" },
-];
+  { value: "quiz",   label: "Quiz",               icon: "📝" },
+  { value: "cours",  label: "Cours",              icon: "📚" },
+  { value: "resume", label: "Résumé",             icon: "📄" },
+  { value: "serie",  label: "Série d'exercices",  icon: "✏️" },
+  { value: "examen", label: "Examen",             icon: "📋" },
+]
 
 const NIVEAUX = [
-  { value: "debutant",      label: "Dâ”œâŒbutant" },
-  { value: "intermediaire", label: "Intermâ”œâŒdiaire" },
-  { value: "avance",        label: "Avancâ”œâŒ" },
-];
+  { value: "debutant",      label: "Débutant" },
+  { value: "intermediaire", label: "Intermédiaire" },
+  { value: "avance",        label: "Avancé" },
+]
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡ Chat IA Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+// ── Chat IA ─────────────────────────────────────────────────────────────────
 function AiChat() {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Bonjour ! Je suis ExoCraft IA. Posez-moi une question ou demandez-moi de gâ”œâŒnâ”œâŒrer un contenu pâ”œâŒdagogique." }
-  ]);
-  const [input, setInput]     = useState("");
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
+    { role: "assistant", content: "Bonjour ! Je suis ExoCraft IA. Posez-moi une question ou demandez-moi de générer un contenu pédagogique." }
+  ])
+  const [input, setInput]     = useState("")
+  const [loading, setLoading] = useState(false)
+  const bottomRef = useRef(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
-  const send = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
-    const userMsg = { role: "user", content: input.trim() };
-    const historique = messages.slice(1);
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+  async function sendMessage(e) {
+    e.preventDefault()
+    if (!input.trim() || loading) return
+
+    const userMessage = input.trim()
+    setInput("")
+    setMessages(prev => [...prev, { role: "user", content: userMessage }])
+    setLoading(true)
+
     try {
-      const data = await aiApi.chat(userMsg.content, historique);
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reponse }]);
+      const data = await aiApi.chat({ message: userMessage, historique: messages.slice(-10) })
+      setMessages(prev => [...prev, { role: "assistant", content: data.response || "Réponse reçue." }])
     } catch (err) {
-      setMessages((prev) => [...prev, { role: "assistant", content: `Î“Â¥Ã® Erreur : ${err.message}` }]);
+      setMessages(prev => [...prev, { role: "assistant", content: `Erreur : ${err.message}` }])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <section className="ai-chat-section">
-      <div className="ai-chat-heading">
-        <span className="dashboard-eyebrow">ASSISTANT IA</span>
-        <h2>Chat avec ExoCraft IA</h2>
-        <p>Posez des questions libres ou demandez de l'aide pour crâ”œâŒer du contenu.</p>
-      </div>
-      <div className="ai-chat-messages">
-        {messages.map((msg, i) => (
-          <div key={i} className={`ai-message ai-message--${msg.role}`}>
-            <span className="ai-message-avatar">{msg.role === "assistant" ? "â‰¡Æ’Ã±Ã»" : "â‰¡Æ’Ã¦Ã±"}</span>
-            <div className="ai-message-bubble">
-              <pre className="ai-message-text">{msg.content}</pre>
+    <div style={{ display: "flex", flexDirection: "column", height: "60vh", border: "1px solid #e0e2f0", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+        {messages.map((m, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+            <div style={{
+              maxWidth: "75%", padding: "10px 16px", borderRadius: 12,
+              background: m.role === "user" ? "linear-gradient(135deg,#6c5ce7,#4a90e2)" : "#f0f2ff",
+              color: m.role === "user" ? "#fff" : "#1a1a3e",
+              fontSize: 14, lineHeight: 1.6,
+            }}>
+              {m.content}
             </div>
           </div>
         ))}
         {loading && (
-          <div className="ai-message ai-message--assistant">
-            <span className="ai-message-avatar">â‰¡Æ’Ã±Ã»</span>
-            <div className="ai-message-bubble ai-message-typing">
-              <span>Î“Ã¹Ã…</span><span>Î“Ã¹Ã…</span><span>Î“Ã¹Ã…</span>
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div style={{ padding: "10px 16px", borderRadius: 12, background: "#f0f2ff", color: "#8888aa", fontSize: 14 }}>
+              ExoCraft IA réfléchit...
             </div>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
-      <form className="ai-chat-form" onSubmit={send}>
-        <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
-          placeholder="â”œÃ«crivez votre message..." disabled={loading} autoFocus />
-        <button type="submit" disabled={loading || !input.trim()}>
-          {loading ? "..." : "Envoyer Î“Ã¥Ã†"}
+      <form onSubmit={sendMessage} style={{ display: "flex", gap: 8, padding: 12, borderTop: "1px solid #e0e2f0" }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Posez votre question..."
+          style={{ flex: 1, padding: "10px 14px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, outline: "none" }}
+        />
+        <button
+          type="submit"
+          disabled={loading || !input.trim()}
+          style={{ padding: "10px 20px", background: "linear-gradient(135deg,#6c5ce7,#4a90e2)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}
+        >
+          Envoyer
         </button>
       </form>
-    </section>
-  );
-}
-
-// Î“Ã¶Ã‡Î“Ã¶Ã‡ Panneau d'export Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
-function ExportPanel({ form, editedContent }) {
-  const [exporting, setExporting] = useState(false);
-  const [msg, setMsg]             = useState("");
-
-  const doExport = async (format, avecCorrige) => {
-    setExporting(true); setMsg("");
-    const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
-    try {
-      if (format === "pdf") {
-        await exportApi.directPdf({ titre, matiere: form.matiere, theme: form.theme, type: form.type, contenu: editedContent, avecCorrige });
-      } else {
-        await exportApi.directWord({ titre, matiere: form.matiere, theme: form.theme, type: form.type, contenu: editedContent, avecCorrige });
-      }
-      setMsg(`Î“Â£Ã´ ${format.toUpperCase()} ${avecCorrige ? "avec corrigâ”œâŒ" : "sans corrigâ”œâŒ"} tâ”œâŒlâ”œâŒchargâ”œâŒ.`);
-    } catch (err) {
-      setMsg(`Î“Â¥Ã® ${err.message}`);
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  return (
-    <div className="ai-export-panel">
-      <h3 className="ai-export-title">â‰¡Æ’Ã´Ã‘ Tâ”œâŒlâ”œâŒcharger le contenu</h3>
-
-      {/* Pour les â”œâŒtudiants Î“Ã‡Ã¶ sans corrigâ”œâŒ */}
-      <div className="ai-export-group">
-        <div className="ai-export-group-label">
-          <span className="ai-export-badge ai-export-badge--student">â‰¡Æ’Ã¦Â¿Î“Ã‡Ã¬â‰¡Æ’Ã„Ã´ Version â”œâŒtudiants</span>
-          <small>Sans les râ”œâŒponses correctes</small>
-        </div>
-        <div className="ai-export-buttons">
-          <button
-            className="ai-export-btn ai-export-btn--pdf"
-            onClick={() => doExport("pdf", false)}
-            disabled={exporting}
-          >
-            â‰¡Æ’Ã´Ã¤ PDF
-          </button>
-          <button
-            className="ai-export-btn ai-export-btn--word"
-            onClick={() => doExport("word", false)}
-            disabled={exporting}
-          >
-            â‰¡Æ’Ã´Â¥ Word
-          </button>
-        </div>
-      </div>
-
-      {/* Pour le professeur Î“Ã‡Ã¶ avec corrigâ”œâŒ */}
-      <div className="ai-export-group">
-        <div className="ai-export-group-label">
-          <span className="ai-export-badge ai-export-badge--prof">â‰¡Æ’Ã¦Â¿Î“Ã‡Ã¬â‰¡Æ’Ã…Â½ Version professeur</span>
-          <small>Avec les râ”œâŒponses et explications</small>
-        </div>
-        <div className="ai-export-buttons">
-          <button
-            className="ai-export-btn ai-export-btn--pdf"
-            onClick={() => doExport("pdf", true)}
-            disabled={exporting}
-          >
-            â‰¡Æ’Ã´Ã¤ PDF + Corrigâ”œâŒ
-          </button>
-          <button
-            className="ai-export-btn ai-export-btn--word"
-            onClick={() => doExport("word", true)}
-            disabled={exporting}
-          >
-            â‰¡Æ’Ã´Â¥ Word + Corrigâ”œâŒ
-          </button>
-        </div>
-      </div>
-
-      {exporting && <p className="ai-export-status">Î“Ã…â”‚ Gâ”œâŒnâ”œâŒration du fichier...</p>}
-      {msg && <p className={`ai-export-status${msg.startsWith("Î“Â¥Ã®") ? " error" : ""}`}>{msg}</p>}
     </div>
-  );
+  )
 }
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡ Gâ”œâŒnâ”œâŒrateur Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
-function AiGeneratorForm() {
-  const [searchParams] = useSearchParams();
-  const archiveId = searchParams.get('archiveId');
+// ── Génération ──────────────────────────────────────────────────────────────
+function AiGenerate() {
+  const [form, setForm] = useState({ type: "quiz", matiere: "", theme: "", niveau: "intermediaire", nombreQuestions: 10, courseFourni: "" })
+  const [result, setResult]   = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState("")
+  const [saved, setSaved]     = useState(false)
 
-  const [form, setForm] = useState({
-    type: "quiz", matiere: "", theme: "", courseFourni: "",
-    nombreQuestions: 5, niveau: "intermediaire",
-    duree: "2 heures", bareme: "20 points",
-  });
-  const [generated, setGenerated] = useState("");
-  const [editedContent, setEdited] = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState("");
-  const [success, setSuccess]     = useState("");
+  function update(e) { setForm(f => ({ ...f, [e.target.name]: e.target.value })) }
 
-  const update = (e) => setForm((cur) => ({ ...cur, [e.target.name]: e.target.value }));
-
-  // Gâ”œâŒnâ”œâŒration
-  const handleGenerate = async (e) => {
-    e.preventDefault();
-    if (!form.matiere.trim() || !form.theme.trim()) {
-      setError("La matiâ”œÂ¿re et le thâ”œÂ¿me sont obligatoires."); return;
-    }
-    setError(""); setSuccess(""); setGenerated(""); setEdited("");
-    setLoading(true);
+  async function handleGenerate(e) {
+    e.preventDefault()
+    if (!form.matiere.trim() || !form.theme.trim()) { setError("Matière et thème sont requis."); return }
+    setError(""); setResult(""); setSaved(false); setLoading(true)
     try {
-      const payload = {
-        matiere: form.matiere, type: form.type, theme: form.theme,
-        ...(form.courseFourni.trim() ? { courseFourni: form.courseFourni } : {}),
-        ...(form.type === "quiz"   ? { nombreQuestions: +form.nombreQuestions, niveau: form.niveau } : {}),
-        ...(form.type === "examen" ? { duree: form.duree, bareme: form.bareme } : {}),
-      };
-      const data = archiveId ? await aiApi.generateFromArchive(archiveId, payload) : await aiApi.generate(payload);
-      setGenerated(data.contenu);
-      setEdited(data.contenu);
+      const data = await aiApi.generate(form)
+      setResult(data.contenu || "")
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Erreur lors de la génération")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  // Sauvegarder en brouillon
-  const handleSave = async () => {
-    if (!editedContent.trim()) return;
-    setSaving(true); setError(""); setSuccess("");
+  async function handleSave() {
+    if (!result) return
     try {
-      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
-      await aiApi.save({ titre, type: form.type, matiere: form.matiere, theme: form.theme, contenu: editedContent });
-      const isQuizType = ["quiz", "serie", "examen"].includes(form.type);
-      setSuccess(
-        isQuizType
-          ? "Î“Â£Ã´ Sauvegardâ”œâŒ en brouillon. Retrouvez-le dans \"Mes Exercices\"."
-          : "Î“Â£Ã´ Sauvegardâ”œâŒ en brouillon. Retrouvez-le dans \"Mes Cours\"."
-      );
-    } catch (err) { setError(err.message); }
-    finally { setSaving(false); }
-  };
+      await aiApi.save({
+        titre: `${form.type} - ${form.theme}`,
+        type: form.type,
+        matiere: form.matiere,
+        theme: form.theme,
+        contenu: result,
+      })
+      setSaved(true)
+    } catch (err) {
+      setError(err.message || "Erreur lors de la sauvegarde")
+    }
+  }
 
-  // Valider
-  const handleValidate = async () => {
-    if (!editedContent.trim()) return;
-    setSaving(true); setError(""); setSuccess("");
-    try {
-      const titre = `${form.type.charAt(0).toUpperCase() + form.type.slice(1)} Î“Ã‡Ã¶ ${form.theme}`;
-      await aiApi.save({ titre, type: form.type, matiere: form.matiere, theme: form.theme, contenu: editedContent });
-      const isQuizType = ["quiz", "serie", "examen"].includes(form.type);
-      setSuccess(
-        isQuizType
-          ? "Î“Â£Ã´ Enregistrâ”œâŒ dans \"Mes Exercices\" ! Vous pouvez y ajouter des questions."
-          : "Î“Â£Ã´ Enregistrâ”œâŒ dans \"Mes Cours\" ! Vous pouvez le valider depuis lâ”œÃ¡-bas."
-      );
-    } catch (err) { setError(err.message); }
-    finally { setSaving(false); }
-  };
+  function handleExportPdf() {
+    const blob = new Blob([result], { type: "text/plain" })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement("a")
+    a.href = url
+    a.download = `${form.type}-${form.theme}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
-    <section className="ai-generator-section">
-      <div className="ai-generator-heading">
-        <span className="dashboard-eyebrow">Gâ”œÃ«Nâ”œÃ«RATION IA</span>
-        <h2>Gâ”œâŒnâ”œâŒrer un contenu pâ”œâŒdagogique</h2>
-        <p>Choisissez un type, saisissez une matiâ”œÂ¿re et un thâ”œÂ¿me. L'IA gâ”œâŒnâ”œÂ¿re le contenu en quelques secondes.</p>
-      </div>
-
-      {archiveId && (
-        <div className="workspace-notice" role="status">
-          â‰¡Æ’Ã´Ã„ Gâ”œâŒnâ”œâŒration depuis l'archive #{archiveId} Î“Ã‡Ã¶ le contenu sera basâ”œâŒ sur ce document.
-        </div>
-      )}
-
-      <form className="ai-generator-form" onSubmit={handleGenerate}>
-
-        {/* Sâ”œâŒlecteur de type */}
-        <div className="ai-type-selector">
-          {CONTENT_TYPES.map((t) => (
-            <label key={t.value} className={`ai-type-card${form.type === t.value ? " active" : ""}`}>
-              <input type="radio" name="type" value={t.value} checked={form.type === t.value} onChange={update} />
-              <span className="ai-type-icon">{t.icon}</span>
-              <span>{t.label}</span>
-            </label>
-          ))}
-        </div>
-
-        {/* Matiâ”œÂ¿re + Thâ”œÂ¿me */}
-        <div className="ai-form-grid">
-          <div className="form-group">
-            <label htmlFor="matiere">Matiâ”œÂ¿re *</label>
-            <input id="matiere" name="matiere" value={form.matiere} onChange={update}
-              placeholder="Ex: Informatique, Mathâ”œâŒmatiques..." required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="theme">Thâ”œÂ¿me *</label>
-            <input id="theme" name="theme" value={form.theme} onChange={update}
-              placeholder="Ex: Les algorithmes de tri..." required />
-          </div>
-        </div>
-
-        {/* Paramâ”œÂ¿tres quiz */}
-        {form.type === "quiz" && (
-          <div className="ai-form-grid">
-            <div className="form-group">
-              <label htmlFor="nombreQuestions">Nombre de questions</label>
-              <input type="number" id="nombreQuestions" name="nombreQuestions"
-                value={form.nombreQuestions} onChange={update} min={1} max={20} />
-            </div>
-            <div className="form-group">
-              <label htmlFor="niveau">Niveau</label>
-              <select id="niveau" name="niveau" value={form.niveau} onChange={update}>
-                {NIVEAUX.map((n) => <option key={n.value} value={n.value}>{n.label}</option>)}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Paramâ”œÂ¿tres examen */}
-        {form.type === "examen" && (
-          <div className="ai-form-grid">
-            <div className="form-group">
-              <label htmlFor="duree">Durâ”œâŒe</label>
-              <input id="duree" name="duree" value={form.duree} onChange={update} placeholder="Ex: 2 heures" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="bareme">Barâ”œÂ¿me</label>
-              <input id="bareme" name="bareme" value={form.bareme} onChange={update} placeholder="Ex: 20 points" />
-            </div>
-          </div>
-        )}
-
-        {/* Cours fourni */}
-        <div className="form-group">
-          <label htmlFor="courseFourni">
-            Cours existant <small>(optionnel Î“Ã‡Ã¶ si vide, l'IA gâ”œâŒnâ”œÂ¿re depuis le thâ”œÂ¿me)</small>
+    <div>
+      <form onSubmit={handleGenerate}>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 8 }}>
+            Type de contenu
           </label>
-          <textarea id="courseFourni" name="courseFourni" value={form.courseFourni} onChange={update}
-            rows={4} placeholder="Collez ici le contenu d'un cours existant pour que l'IA s'en inspire..." />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {CONTENT_TYPES.map(ct => (
+              <button
+                key={ct.value}
+                type="button"
+                onClick={() => setForm(f => ({ ...f, type: ct.value }))}
+                style={{
+                  padding: "10px 16px", borderRadius: 10, border: `2px solid ${form.type === ct.value ? "#6c5ce7" : "#e0e2f0"}`,
+                  background: form.type === ct.value ? "#edeaff" : "#fff",
+                  color: form.type === ct.value ? "#6c5ce7" : "#3a3a6a",
+                  fontWeight: form.type === ct.value ? 700 : 400,
+                  cursor: "pointer", fontSize: 13,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 90,
+                }}
+              >
+                <span style={{ fontSize: 20 }}>{ct.icon}</span>
+                <span>{ct.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {error && <p className="workspace-error" role="alert">{error}</p>}
-
-        <button type="submit" className="workspace-button ai-generate-btn" disabled={loading}>
-          {loading ? "Î“Ã…â”‚ Gâ”œâŒnâ”œâŒration en cours..." : "Î“Â£Â¿ Gâ”œâŒnâ”œâŒrer avec l'IA"}
-        </button>
-      </form>
-
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Zone râ”œâŒsultat Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
-      {generated && (
-        <div className="ai-result">
-          <div className="ai-result-heading">
-            <h3>Contenu gâ”œâŒnâ”œâŒrâ”œâŒ Î“Ã‡Ã¶ modifiez-le si besoin avant de tâ”œâŒlâ”œâŒcharger ou sauvegarder</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Matière *</label>
+            <input name="matiere" value={form.matiere} onChange={update} placeholder="Ex: Informatique, Mathématiques..." required
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, boxSizing: "border-box", outline: "none" }} />
           </div>
-
-          <textarea
-            className="ai-result-editor"
-            value={editedContent}
-            onChange={(e) => setEdited(e.target.value)}
-            rows={20}
-          />
-
-          {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Panneau d'export Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
-          <ExportPanel form={form} editedContent={editedContent} />
-
-          {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Sauvegarde backend Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
-          <div className="ai-result-actions">
-            <button className="workspace-button secondary" onClick={handleSave} disabled={saving}>
-              {saving ? "Sauvegarde..." : "â‰¡Æ’Ã†â•› Sauvegarder en brouillon"}
-            </button>
-            <button className="workspace-button" onClick={handleValidate} disabled={saving}>
-              {saving ? "Enregistrement..." : (
-                ["quiz", "serie", "examen"].includes(form.type)
-                  ? "Î“Â£Ã´ Enregistrer dans Mes Quiz"
-                  : "Î“Â£Ã´ Enregistrer dans Mes Contenus"
-              )}
-            </button>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Thème *</label>
+            <input name="theme" value={form.theme} onChange={update} placeholder="Ex: Les algorithmes de tri..." required
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, boxSizing: "border-box", outline: "none" }} />
           </div>
+        </div>
 
-          {success && (
-            <div className="workspace-notice" role="status">
-              <p>{success}</p>
-              {["quiz", "serie", "examen"].includes(form.type)
-                ? <a href="/quiz" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>Î“Ã¥Ã† Aller â”œÃ¡ Mes Exercices</a>
-                : <a href="/contents" className="workspace-button secondary" style={{display:"inline-block",marginTop:"8px"}}>Î“Ã¥Ã† Aller â”œÃ¡ Mes Cours</a>
-              }
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Niveau</label>
+            <select name="niveau" value={form.niveau} onChange={update}
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, background: "#fff" }}>
+              {NIVEAUX.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
+            </select>
+          </div>
+          {(form.type === "quiz" || form.type === "examen" || form.type === "serie") && (
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Nombre de questions</label>
+              <input type="number" name="nombreQuestions" value={form.nombreQuestions} onChange={update} min={3} max={20}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, boxSizing: "border-box" }} />
             </div>
           )}
         </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "#8888aa", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+            Cours fourni (optionnel — améliore la qualité)
+          </label>
+          <textarea name="courseFourni" value={form.courseFourni} onChange={update} rows={3}
+            placeholder="Collez votre cours ici pour que l'IA génère des questions plus précises..."
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e0e2f0", fontSize: 14, resize: "vertical", boxSizing: "border-box" }} />
+        </div>
+
+        {error && <div style={{ background: "#fff0ee", border: "1px solid #ffd5cc", borderRadius: 8, padding: "10px 14px", color: "#e17055", marginBottom: 12 }}>{error}</div>}
+
+        <button type="submit" disabled={loading}
+          style={{ width: "100%", padding: "13px", background: loading ? "rgba(108,92,231,0.4)" : "linear-gradient(135deg,#6c5ce7,#4a90e2)", border: "none", borderRadius: 10, color: "#fff", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          {loading ? (
+            <><span style={{ width: 18, height: 18, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite", display: "inline-block" }} /> Génération en cours...</>
+          ) : "🤖 Générer le contenu"}
+        </button>
+      </form>
+
+      {/* Résultat */}
+      {result && (
+        <div style={{ marginTop: 24, background: "#fafbff", border: "1px solid #e0e2f0", borderRadius: 12, padding: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ fontWeight: 700, color: "#1a1a3e", fontSize: 15 }}>Contenu généré</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {!saved ? (
+                <button onClick={handleSave}
+                  style={{ padding: "7px 14px", borderRadius: 8, border: "1px solid #a8e6cf", background: "#e0faf3", color: "#00b894", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                  💾 Sauvegarder
+                </button>
+              ) : (
+                <span style={{ fontSize: 12, color: "#00b894", fontWeight: 600 }}>✓ Sauvegardé</span>
+              )}
+              <button onClick={handleExportPdf}
+                style={{ padding: "7px 14px", borderRadius: 8, border: "1px solid #e0e2f0", background: "#fff", color: "#6c5ce7", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                ⬇ Exporter
+              </button>
+            </div>
+          </div>
+          <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 13, lineHeight: 1.8, color: "#1a1a3e", margin: 0 }}>
+            {result}
+          </pre>
+        </div>
       )}
-    </section>
-  );
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
 }
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡ Page principale Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+// ── Page principale ──────────────────────────────────────────────────────────
 export default function AiGenerator() {
-  const { user } = useAuth();
-  const groups = user?.associations?.length ? user.associations : defaultGroups();
-  const [tab, setTab] = useState("generate");
+  const [activeTab, setActiveTab] = useState("generate")
+
+  const tabs = [
+    { key: "generate", label: "✨ Générer un contenu" },
+    { key: "chat",     label: "💬 Chat avec l'IA" },
+  ]
 
   return (
-    <DashboardLayout activePage="ai" groups={groups}>
-      <section className="ai-page-header">
-        <div>
-          <span className="dashboard-eyebrow">INTELLIGENCE ARTIFICIELLE</span>
-          <h1>Assistant ExoCraft IA</h1>
-          <p>Gâ”œâŒnâ”œâŒrez des cours, quiz, râ”œâŒsumâ”œâŒs, sâ”œâŒries d'exercices et examens en quelques secondes.</p>
+    <DashboardLayout activePage="ai">
+      <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ marginBottom: 28 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#6c5ce7", textTransform: "uppercase", letterSpacing: 1 }}>
+            INTELLIGENCE ARTIFICIELLE
+          </span>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#1a1a3e", margin: "6px 0 8px" }}>
+            Assistant ExoCraft IA
+          </h1>
+          <p style={{ color: "#8888aa", fontSize: 14 }}>
+            Générez des cours, quiz, résumés, séries d'exercices et examens en quelques secondes.
+          </p>
         </div>
-      </section>
 
-      <div className="ai-tabs">
-        <button className={`ai-tab${tab === "generate" ? " active" : ""}`} onClick={() => setTab("generate")}>
-          Î“Â£Â¿ Gâ”œâŒnâ”œâŒrer un contenu
-        </button>
-        <button className={`ai-tab${tab === "chat" ? " active" : ""}`} onClick={() => setTab("chat")}>
-          â‰¡Æ’Ã†Â¼ Chat avec l'IA
-        </button>
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 24, borderBottom: "2px solid #e0e2f0" }}>
+          {tabs.map(tab => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: "10px 20px", border: "none", background: "transparent", cursor: "pointer",
+                fontSize: 14, fontWeight: activeTab === tab.key ? 700 : 500,
+                color: activeTab === tab.key ? "#6c5ce7" : "#8888aa",
+                borderBottom: activeTab === tab.key ? "2px solid #6c5ce7" : "2px solid transparent",
+                marginBottom: -2,
+              }}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Contenu */}
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e0e2f0", padding: 24 }}>
+          {activeTab === "generate" ? <AiGenerate /> : <AiChat />}
+        </div>
       </div>
-
-      {tab === "generate" ? <AiGeneratorForm /> : <AiChat />}
     </DashboardLayout>
-  );
+  )
 }
