@@ -1,0 +1,5 @@
+/* CSS du frontend enseignant (Rami) */
+@import './index.teacher.css';
+@import './App.teacher.css';
+@import './layout.teacher.css';
+@import './workspace.teacher.css';

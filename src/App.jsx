@@ -28,7 +28,8 @@ import TeacherSettings   from './pages/teacher/Settings'
 import AdminApp from './pages/admin/AdminApp'
 
 // ── CSS ──
-import './index.css'
+import './index.css'       // CSS admin
+import './teacher.css'     // CSS enseignant (Rami)
 
 // ── Guards ────────────────────────────────────────────────────────────────
 
