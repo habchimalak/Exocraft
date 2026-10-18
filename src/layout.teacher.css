@@ -17,6 +17,8 @@ img { max-width: 100%; }
   min-height: 100vh;
   background: #f7f8fc;
   color: #171735;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .sidebar {
@@ -71,10 +73,11 @@ img { max-width: 100%; }
 .sidebar-logout { margin-top: 28px; border-top: 1px solid var(--shell-border); }
 
 .dashboard-main {
-  width: calc(100% - var(--sidebar-width));
+  width: calc(100vw - var(--sidebar-width));
   min-width: 0;
   min-height: 100vh;
   margin-left: var(--sidebar-width);
+  overflow-x: hidden;
 }
 .dashboard-topbar {
   min-height: 80px;

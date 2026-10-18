@@ -59,6 +59,8 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -2880,7 +2882,7 @@ button {
   margin: 24px 0 0;
 
   /*
-    Taille r├⌐duite par rapport ├á l'ancienne version
+    Taille râ”œâŒduite par rapport â”œÃ¡ l'ancienne version
   */
   font-size: clamp(44px, 4vw, 60px);
 
@@ -3783,7 +3785,7 @@ button {
 
 
 /* =========================================================
-   IC├öNE IA
+   ICâ”œÃ¶NE IA
 ========================================================= */
 
 .ai-center-icon {
@@ -7699,7 +7701,7 @@ button {
 
 
 /* =========================================================
-   FICHIER ATTACH├ë - MODE ├ëDITION
+   FICHIER ATTACHâ”œÃ« - MODE â”œÃ«DITION
 ========================================================= */
 
 .course-attached-file {
@@ -12963,7 +12965,7 @@ button {
 }
 
 /* =========================================================
-   IA ΓÇö PAGE STYLES
+   IA Î“Ã‡Ã¶ PAGE STYLES
 ========================================================= */
 
 /* Header */
@@ -12999,7 +13001,7 @@ button {
   border-bottom-color: #6d28d9;
 }
 
-/* G├⌐n├⌐rateur */
+/* Gâ”œâŒnâ”œâŒrateur */
 .ai-generator-section,
 .ai-chat-section {
   background: #fff;
@@ -13014,7 +13016,7 @@ button {
   margin-bottom: 1.5rem;
 }
 
-/* S├⌐lecteur de type */
+/* Sâ”œâŒlecteur de type */
 .ai-type-selector {
   display: flex;
   flex-wrap: wrap;
@@ -13068,7 +13070,7 @@ button {
   margin-top: 0.5rem;
 }
 
-/* R├⌐sultat g├⌐n├⌐r├⌐ */
+/* Râ”œâŒsultat gâ”œâŒnâ”œâŒrâ”œâŒ */
 .ai-result {
   margin-top: 2rem;
   border-top: 2px solid #e5e7eb;
@@ -13306,7 +13308,7 @@ button {
 }
 
 /* =========================================================
-   FEAT-001 ΓÇö QuizManager / ContentManager / ArchivesAdmin / AdminDashboard
+   FEAT-001 Î“Ã‡Ã¶ QuizManager / ContentManager / ArchivesAdmin / AdminDashboard
 ========================================================= */
 
 .tabs-row { display: flex; gap: 8px; margin-bottom: 24px; }
@@ -13349,6 +13351,8 @@ img { max-width: 100%; }
   min-height: 100vh;
   background: #f7f8fc;
   color: #171735;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .sidebar {
@@ -13403,7 +13407,7 @@ img { max-width: 100%; }
 .sidebar-logout { margin-top: 28px; border-top: 1px solid var(--shell-border); }
 
 .dashboard-main {
-  width: calc(100% - var(--sidebar-width));
+  width: calc(100vw - var(--sidebar-width));
   min-width: 0;
   min-height: 100vh;
   margin-left: var(--sidebar-width);
@@ -13677,4 +13681,5 @@ img { max-width: 100%; }
   .workspace-card { padding: 20px; }
   .workspace-editor input, .workspace-editor select, .workspace-editor textarea, .workspace-filters input, .workspace-filters select { font-size: 16px; }
 }
+
 
