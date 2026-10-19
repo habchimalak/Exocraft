@@ -60,7 +60,7 @@ model Promo {
   updatedAt        DateTime @updatedAt
 
   matierePromos    MatierePromo[]
-  promoMatieres    String         @default("[]") // JSON array of matiere names (for display compatibility)
+  promoMatieres    String         @default("[]") // JSON array of matiere names
   userPromos       UserPromo[]
 
   @@unique([code, etablissementType])

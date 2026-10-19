@@ -18,8 +18,9 @@ export class ArchiveService {
       orderBy: { createdAt: 'desc' },
     })
     return archives.map((a) => ({
-      id: a.id, titre: a.titre, type: a.type, format: a.format, fichier: a.fileName, size: a.size,
-      matiere: a.matiere, promo: a.promo, uploadedBy: a.uploadedBy, created_at: a.createdAt.toISOString(),
+      id: a.id, titre: a.titre, type: a.type, format: a.format, fichier: a.fileName,
+      size: a.size, matiere: a.matiere, promo: a.promo, uploadedBy: a.uploadedBy,
+      created_at: a.createdAt.toISOString(),
     }))
   }
 

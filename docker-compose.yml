@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # ── MySQL ──────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: exocraft-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: exocraft_root_2024
+      MYSQL_DATABASE: exocraft_db
+      MYSQL_USER: exocraft
+      MYSQL_PASSWORD: exocraft_pass_2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - exocraft_mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # ── MinIO ──────────────────────────────────────────────────────────────────
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: exocraft-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: exocraft_admin
+      MINIO_ROOT_PASSWORD: exocraft_minio_2024
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Console web
+    volumes:
+      - exocraft_minio_data:/data
+    command: server /data --console-address ":9001"
+
+volumes:
+  exocraft_mysql_data:
+  exocraft_minio_data:

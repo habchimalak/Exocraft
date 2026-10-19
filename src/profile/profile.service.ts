@@ -15,7 +15,8 @@ export class ProfileService {
       nom: user.nom, prenom: user.prenom, email: user.email,
       telephone: p?.telephone ?? '', poste: p?.poste ?? '',
       departement: p?.departement ?? '', etablissement: p?.etablissement ?? '',
-      bio: p?.bio ?? '', avatar: p?.avatarPath ? `/uploads/avatars/${p.avatarPath}` : null,
+      bio: p?.bio ?? '',
+      avatar: p?.avatarPath ? `/uploads/avatars/${p.avatarPath}` : null,
     }
   }
 
@@ -25,7 +26,9 @@ export class ProfileService {
         await tx.user.update({ where: { id: userId }, data: { ...(data.nom ? { nom: data.nom } : {}), ...(data.prenom ? { prenom: data.prenom } : {}), ...(data.email ? { email: data.email } : {}) } })
       }
       const profileData: Record<string, string> = {}
-      for (const [k, v] of Object.entries(data)) { if (['telephone','poste','departement','etablissement','bio'].includes(k) && v !== undefined) profileData[k] = String(v) }
+      for (const [k, v] of Object.entries(data)) {
+        if (['telephone','poste','departement','etablissement','bio'].includes(k) && v !== undefined) profileData[k] = String(v)
+      }
       if (Object.keys(profileData).length > 0) {
         await tx.adminProfile.upsert({ where: { userId }, update: profileData, create: { userId, ...profileData } })
       }
